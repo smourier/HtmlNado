@@ -147,7 +147,7 @@ public class HtmlConverter
     {
         while (_newLineCount > MaxSuccessiveNewLinesCount && s != null && s.StartsWith(writer.NewLine, StringComparison.Ordinal))
         {
-            s = s.Substring(writer.NewLine.Length);
+            s = s[writer.NewLine.Length..];
         }
 
         writer.Write(s);
@@ -470,16 +470,16 @@ public class HtmlConverter
         if (url == null)
             return null;
 
-        if (url.EndsWith("/", StringComparison.Ordinal))
+        if (url.EndsWith('/'))
         {
-            url = url.Substring(0, url.Length - 1);
+            url = url[..^1];
         }
 
         if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
-            return url.Substring(7);
+            return url[7..];
 
         if (url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-            return url.Substring(8);
+            return url[8..];
 
         return url;
     }

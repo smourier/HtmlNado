@@ -4,10 +4,7 @@ public abstract class CssComponentValue : ICssFormattable
 {
     protected CssComponentValue(CssTokenizerInfo info)
     {
-        if (info == null)
-        {
-            info = new CssTokenizerInfo(0, 0);
-        }
+        info ??= new CssTokenizerInfo(0, 0);
 
         Info = info;
     }

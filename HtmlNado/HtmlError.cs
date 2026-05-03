@@ -19,7 +19,7 @@ public class HtmlError
         ErrorType = errorType;
     }
 
-    public virtual HtmlNode Node { get; internal set; }
+    public virtual HtmlNode? Node { get; internal set; }
     public virtual HtmlErrorType ErrorType { get; }
     public virtual int Offset { get; }
     public virtual int Line { get; }

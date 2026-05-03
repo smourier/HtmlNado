@@ -15,9 +15,9 @@ public class HtmlReaderStateWithCode : HtmlReaderState
         {
             if (RawValue != null && (RawParserState == HtmlParserState.AttValue || RawParserState == HtmlParserState.AttName) &&
                 RawValue.IndexOf(Reader.Document.CodeStartDelimiter.ToString(CultureInfo.InvariantCulture) + Reader.Document.CodeStartToken, StringComparison.OrdinalIgnoreCase) >= 0 &&
-                ((RawValue.StartsWith("'", StringComparison.Ordinal) && RawValue.EndsWith("'", StringComparison.Ordinal)) ||
-                (RawValue.StartsWith("\"", StringComparison.Ordinal) && RawValue.EndsWith("\"", StringComparison.Ordinal))))
-                return RawValue.Substring(1, RawValue.Length - 2);
+                ((RawValue.StartsWith('\'') && RawValue.EndsWith('\'')) ||
+                (RawValue.StartsWith('"') && RawValue.EndsWith('"'))))
+                return RawValue[1..^1];
 
             return base.Value;
         }

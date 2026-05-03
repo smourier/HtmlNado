@@ -6,7 +6,7 @@ public class HtmlException : Exception
     public const string Prefix = "HTM";
 
     public HtmlException()
-        : base(Prefix + "0001: Html exception.")
+        : base(Prefix + "0001: HtmlNado exception.")
     {
     }
 
@@ -39,7 +39,7 @@ public class HtmlException : Exception
         if (pos < 0)
             return -1;
 
-        if (int.TryParse(message.Substring(Prefix.Length, pos - Prefix.Length), NumberStyles.Integer, CultureInfo.InvariantCulture, out int i))
+        if (int.TryParse(message[Prefix.Length..pos], NumberStyles.Integer, CultureInfo.InvariantCulture, out int i))
             return i;
 
         return -1;

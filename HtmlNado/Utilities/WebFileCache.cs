@@ -81,10 +81,7 @@ public class WebFileCache
     {
         ArgumentNullException.ThrowIfNull(url);
 
-        if (options == null)
-        {
-            options = new WebFileCacheRequestOptions();
-        }
+        options ??= new WebFileCacheRequestOptions();
 
         if (options.UseCacheFile)
         {
@@ -179,8 +176,8 @@ public class WebFileCache
                     }
                     else
                     {
-                        key = line.Substring(0, pos);
-                        value = line.Substring(pos + 1).Trim();
+                        key = line[..pos];
+                        value = line[(pos + 1)..].Trim();
                         value = value.Replace(_lineFeedReplacement.ToString(CultureInfo.InvariantCulture), Environment.NewLine);
                     }
 
@@ -384,11 +381,8 @@ public class WebFileCache
                 var ext = Path.GetExtension(fileName);
                 if (string.IsNullOrWhiteSpace(ext))
                 {
-                    if (ct == null)
-                    {
-                        // too bad. let's sniff this stuff out
-                        ct = IOUtilities.FindContentType(tmpFile);
-                    }
+                    // too bad. let's sniff this stuff out
+                    ct ??= IOUtilities.FindContentType(tmpFile);
 
                     ext = IOUtilities.GetFileExtensionFromContentType(ct);
                     if (!string.IsNullOrWhiteSpace(ext))
@@ -481,7 +475,7 @@ public class WebFileCache
                 if (response == null || response.StatusCode != HttpStatusCode.NotModified)
                 {
                     _dictionary[nameof(Status)] = ((int)ex.Status).ToString(CultureInfo.InvariantCulture);
-                    string error = null;
+                    string? error = null;
                     if (response != null)
                     {
                         using (var stream = response.GetResponseStream())
@@ -501,7 +495,7 @@ public class WebFileCache
                         }
                     }
 
-                    string httpError = null;
+                    string? httpError = null;
                     var httpStatus = response?.StatusCode;
                     if (httpStatus.HasValue)
                     {

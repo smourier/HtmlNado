@@ -11,7 +11,7 @@ public static class Slug
         string normalized;
         if (options.EarlyTruncate && options.MaximumLength > 0 && text.Length > options.MaximumLength)
         {
-            normalized = text.Substring(0, options.MaximumLength).Normalize(NormalizationForm.FormD);
+            normalized = text[..options.MaximumLength].Normalize(NormalizationForm.FormD);
         }
         else
         {
@@ -68,12 +68,12 @@ public static class Slug
         var result = sb.ToString();
         if (options.MaximumLength > 0 && result.Length > options.MaximumLength)
         {
-            result = result.Substring(0, options.MaximumLength);
+            result = result[..options.MaximumLength];
         }
 
         if (!options.CanEndWithSeparator && options.Separator != null && result.EndsWith(options.Separator, StringComparison.OrdinalIgnoreCase))
         {
-            result = result.Substring(0, result.Length - options.Separator.Length);
+            result = result[..^options.Separator.Length];
         }
 
         return result.Normalize(NormalizationForm.FormC);

@@ -7,20 +7,20 @@ public class HtmlAttributeWithCode : HtmlAttribute
     {
     }
 
-    public new HtmlDocumentWithCode OwnerDocument => (HtmlDocumentWithCode)base.OwnerDocument;
+    public new HtmlDocumentWithCode? OwnerDocument => (HtmlDocumentWithCode?)base.OwnerDocument;
 
     protected override char GetQuoteChar()
     {
         var escapeQuoteChar = false;
         var s = base.GetValue(ref escapeQuoteChar);
-        if (s != null && s.StartsWith(OwnerDocument.CodeStartDelimiter.ToString(CultureInfo.CurrentCulture) + OwnerDocument.CodeStartToken, System.StringComparison.OrdinalIgnoreCase) &&
-            s.EndsWith(OwnerDocument.CodeEndToken.ToString(CultureInfo.CurrentCulture) + OwnerDocument.CodeEndDelimiter, System.StringComparison.OrdinalIgnoreCase))
+        if (s != null && s.StartsWith(OwnerDocument?.CodeStartDelimiter.ToString(CultureInfo.CurrentCulture) + OwnerDocument?.CodeStartToken, StringComparison.OrdinalIgnoreCase) &&
+            s.EndsWith(OwnerDocument?.CodeEndToken.ToString(CultureInfo.CurrentCulture) + OwnerDocument?.CodeEndDelimiter, StringComparison.OrdinalIgnoreCase))
             return '\'';
 
         return base.GetQuoteChar();
     }
 
-    protected override string GetValue(ref bool escapeQuoteChar)
+    protected override string? GetValue(ref bool escapeQuoteChar)
     {
         if (!escapeQuoteChar)
             return base.GetValue(ref escapeQuoteChar);
@@ -38,14 +38,14 @@ public class HtmlAttributeWithCode : HtmlAttribute
             var next = i < (s.Length - 1) ? s[i + 1] : '\0';
             if (inCode)
             {
-                if (c == OwnerDocument.CodeEndToken && next == OwnerDocument.CodeEndDelimiter)
+                if (c == OwnerDocument?.CodeEndToken && next == OwnerDocument?.CodeEndDelimiter)
                 {
                     inCode = false;
                 }
             }
             else
             {
-                if (c == OwnerDocument.CodeStartDelimiter && next == OwnerDocument.CodeStartToken)
+                if (c == OwnerDocument?.CodeStartDelimiter && next == OwnerDocument?.CodeStartToken)
                 {
                     inCode = true;
                 }
@@ -71,6 +71,6 @@ public class HtmlAttributeWithCode : HtmlAttribute
         }
 
         var news = sb.ToString();
-        return string.Equals(news, s, System.StringComparison.Ordinal) ? s : news;
+        return string.Equals(news, s, StringComparison.Ordinal) ? s : news;
     }
 }

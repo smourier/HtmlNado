@@ -6,10 +6,7 @@ public class HtmlXmlWriter : XmlWriter
 
     public HtmlXmlWriter(HtmlNode parent)
     {
-        if (parent == null)
-        {
-            parent = new HtmlDocument();
-        }
+        parent ??= new HtmlDocument();
 
         Parent = parent;
 
@@ -78,7 +75,7 @@ public class HtmlXmlWriter : XmlWriter
 
     private HtmlElement GetCurrentElement()
     {
-        if (!(Current is HtmlElement element))
+        if (Current is not HtmlElement element)
             throw new InvalidOperationException("Current node is not an element but is of '" + Current.GetType().FullName + "' type.");
 
         return element;
@@ -100,7 +97,7 @@ public class HtmlXmlWriter : XmlWriter
 
     public override void WriteEndAttribute()
     {
-        if (!(Current is HtmlAttribute att))
+        if (Current is not HtmlAttribute att)
             throw new InvalidOperationException("Current node is not an attribute but is of '" + Current.GetType().FullName + "' type.");
 
         Current = att.ParentNode;

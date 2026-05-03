@@ -20,7 +20,7 @@ public static class Conversions
             return;
 
         // this one is not interesting...
-        if (!(e is TargetInvocationException))
+        if (e is not TargetInvocationException)
         {
             if (sb.Length > 0)
             {
@@ -89,10 +89,7 @@ public static class Conversions
         if (text == null)
             return null;
 
-        if (encoding == null)
-        {
-            encoding = Encoding.Unicode;
-        }
+        encoding ??= Encoding.Unicode;
 
         return ToHexaDump(encoding.GetBytes(text));
     }
@@ -194,19 +191,22 @@ public static class Conversions
         if (text == null || separators == null || separators.Length == 0)
             return al;
 
-        foreach (string s in text.Split(separators))
+        foreach (var s in text.Split(separators))
         {
-            string value = s.Nullify();
+            var value = s.Nullify();
             if (value == null)
                 continue;
 
             var item = ChangeType(value, default(T), provider);
-            al.Add(item);
+            if (item is not null)
+            {
+                al.Add(item);
+            }
         }
         return al;
     }
 
-    public static string SafeSubstring(this string thisString, int startIndex, int length = int.MaxValue)
+    public static string? SafeSubstring(this string? thisString, int startIndex, int length = int.MaxValue)
     {
         if (thisString == null)
             return null;
@@ -215,12 +215,12 @@ public static class Conversions
             return null;
 
         if ((startIndex + (long)length) > thisString.Length)
-            return thisString.Substring(startIndex);
+            return thisString[startIndex..];
 
         return thisString.Substring(startIndex, length);
     }
 
-    public static bool EqualsIgnoreCase(this string thisString, string text, bool trim = false)
+    public static bool EqualsIgnoreCase(this string? thisString, string? text, bool trim = false)
     {
         if (trim)
         {
@@ -240,7 +240,7 @@ public static class Conversions
         return string.Compare(thisString, text, StringComparison.OrdinalIgnoreCase) == 0;
     }
 
-    public static string Nullify(this string text)
+    public static string? Nullify(this string? text)
     {
         if (text == null)
             return null;
@@ -248,7 +248,7 @@ public static class Conversions
         if (string.IsNullOrWhiteSpace(text))
             return null;
 
-        string t = text.Trim();
+        var t = text.Trim();
         return t.Length == 0 ? null : t;
     }
 
@@ -1099,7 +1099,7 @@ public static class Conversions
 
         if (stringInput.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
         {
-            if (ulong.TryParse(stringInput.Substring(2), NumberStyles.HexNumber, null, out ulong ulx))
+            if (ulong.TryParse(stringInput[2..], NumberStyles.HexNumber, null, out ulong ulx))
             {
                 value = ToEnum(ulx.ToString(CultureInfo.InvariantCulture), type);
                 return true;
@@ -1239,10 +1239,7 @@ public static class Conversions
         if (dic1.Count != dic2.Count)
             return false;
 
-        if (comparer == null)
-        {
-            comparer = EqualityComparer<TValue>.Default;
-        }
+        comparer ??= EqualityComparer<TValue>.Default;
 
         foreach (var kv1 in dic1)
         {

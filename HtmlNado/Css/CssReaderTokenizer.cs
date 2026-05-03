@@ -699,10 +699,7 @@ public class CssReaderTokenizer : CssTokenizer
                 ConsumeNextCodePoint();
                 string comment = ConsumeComment();
                 var token = ConsumeToken();
-                if (token != null)
-                {
-                    token.Comment = comment;
-                }
+                token?.Comment = comment;
                 return token;
             }
 

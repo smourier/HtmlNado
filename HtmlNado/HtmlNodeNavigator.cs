@@ -103,7 +103,7 @@ public class HtmlNodeNavigator : XPathNavigator
 
     public override bool IsSamePosition(XPathNavigator other)
     {
-        if (!(other is HtmlNodeNavigator nav))
+        if (other is not HtmlNodeNavigator nav)
             return false;
 
         if (Document != null)
@@ -191,7 +191,7 @@ public class HtmlNodeNavigator : XPathNavigator
 
     public override bool MoveToFirstNamespace(XPathNamespaceScope scope)
     {
-        if (!(CurrentNode is HtmlElement element))
+        if (CurrentNode is not HtmlElement element)
             return false;
 
         HtmlAttribute att = null;
@@ -292,7 +292,7 @@ public class HtmlNodeNavigator : XPathNavigator
 
     public override bool MoveToNextNamespace(XPathNamespaceScope scope)
     {
-        if (!(CurrentNode is HtmlAttribute attribute) || !attribute.IsNamespace)
+        if (CurrentNode is not HtmlAttribute attribute || !attribute.IsNamespace)
             return false;
 
         HtmlAttribute att;

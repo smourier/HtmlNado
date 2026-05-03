@@ -30,7 +30,7 @@ public class HtmlReaderState
     {
         get
         {
-            if (RawParserState == HtmlParserState.TagOpen && RawValue != null && RawValue.StartsWith("/", StringComparison.Ordinal))
+            if (RawParserState == HtmlParserState.TagOpen && RawValue != null && RawValue.StartsWith('/'))
                 return HtmlParserState.TagClose;
 
             return RawParserState;
@@ -41,15 +41,15 @@ public class HtmlReaderState
     {
         get
         {
-            if (RawParserState == HtmlParserState.TagOpen && RawValue != null && RawValue.StartsWith("/", StringComparison.Ordinal))
-                return RawValue.Substring(1);
+            if (RawParserState == HtmlParserState.TagOpen && RawValue != null && RawValue.StartsWith('/'))
+                return RawValue[1..];
 
             if (RawValue != null && (RawParserState == HtmlParserState.AttValue || RawParserState == HtmlParserState.AttName) &&
-                ((RawValue.StartsWith("'", StringComparison.Ordinal) && RawValue.EndsWith("'", StringComparison.Ordinal)) ||
-                (RawValue.StartsWith("\"", StringComparison.Ordinal) && RawValue.EndsWith("\"", StringComparison.Ordinal))))
+                ((RawValue.StartsWith('\'') && RawValue.EndsWith('\'')) ||
+                (RawValue.StartsWith('"') && RawValue.EndsWith('"'))))
             {
                 var quote = RawValue[0];
-                return RawValue.Substring(1, RawValue.Length - 2).Replace(quote + quote.ToString(CultureInfo.InvariantCulture), quote.ToString(CultureInfo.InvariantCulture));
+                return RawValue[1..^1].Replace(quote + quote.ToString(CultureInfo.InvariantCulture), quote.ToString(CultureInfo.InvariantCulture));
             }
 
             return RawValue;

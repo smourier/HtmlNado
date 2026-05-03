@@ -50,7 +50,7 @@ public class HtmlXPathDocument : HtmlDocument
         var changed = false;
         foreach (var node in SelectNodes("//*"))
         {
-            if (!(node is HtmlXPathElement element))
+            if (node is not HtmlXPathElement element)
                 continue;
 
             var other = target.SelectSingleNode(element.XPathExpression, XPathNamespaceManager);
@@ -88,7 +88,7 @@ public class HtmlXPathDocument : HtmlDocument
 
                             if (att.LocalName.StartsWith(replaceToken, StringComparison.OrdinalIgnoreCase))
                             {
-                                var replaceName = att.LocalName.Substring(replaceToken.Length);
+                                var replaceName = att.LocalName[replaceToken.Length..];
                                 if (!string.IsNullOrEmpty(replaceName))
                                 {
                                     string ns = null;
@@ -119,7 +119,7 @@ public class HtmlXPathDocument : HtmlDocument
                             }
                             else if (att.LocalName.StartsWith(removeToken, StringComparison.OrdinalIgnoreCase))
                             {
-                                var removeName = att.LocalName.Substring(removeToken.Length);
+                                var removeName = att.LocalName[removeToken.Length..];
                                 if (!string.IsNullOrEmpty(removeName))
                                 {
                                     string ns = null;
@@ -223,10 +223,7 @@ public class HtmlXPathDocument : HtmlDocument
     {
         ArgumentNullException.ThrowIfNull(name);
 
-        if (_discriminantAttributes == null)
-        {
-            _discriminantAttributes = [];
-        }
+        _discriminantAttributes ??= [];
         _discriminantAttributes.Add(new Tuple<string, string>(name, namespaceURI));
     }
 
@@ -234,10 +231,7 @@ public class HtmlXPathDocument : HtmlDocument
     {
         ArgumentNullException.ThrowIfNull(name);
 
-        if (_filteredAttributes == null)
-        {
-            _filteredAttributes = [];
-        }
+        _filteredAttributes ??= [];
         _filteredAttributes.Add(new Tuple<string, string>(name, namespaceURI));
     }
 

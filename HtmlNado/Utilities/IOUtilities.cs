@@ -334,7 +334,7 @@ public static class IOUtilities
         var s = sb.ToString();
         if (s.Length >= 255) // a segment is always 255 max even with long file names
         {
-            s = s.Substring(0, 254);
+            s = s[..254];
         }
 
         if (s.EqualsIgnoreCase(fileName))
@@ -504,14 +504,14 @@ public static class IOUtilities
         if (child.Length < (path.Length + 1))
             return false;
 
-        var newChild = Path.Combine(path, child.Substring(path.Length + 1));
+        var newChild = Path.Combine(path, child[(path.Length + 1)..]);
         var b = newChild.EqualsIgnoreCase(child);
         if (b)
         {
-            subPath = child.Substring(path.Length);
+            subPath = child[path.Length..];
             while (subPath.StartsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.CurrentCulture), StringComparison.OrdinalIgnoreCase))
             {
-                subPath = subPath.Substring(1);
+                subPath = subPath[1..];
             }
         }
         return b;
@@ -524,7 +524,7 @@ public static class IOUtilities
 
         while (path.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.CurrentCulture), StringComparison.OrdinalIgnoreCase))
         {
-            path = path.Substring(0, path.Length - 1);
+            path = path[..^1];
         }
         return path;
     }

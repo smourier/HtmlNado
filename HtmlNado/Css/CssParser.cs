@@ -158,7 +158,7 @@ public class CssParser
             cv = Consume();
         }
 
-        if (!(cv is LiteralToken lt) || lt.Value != ':')
+        if (cv is not LiteralToken lt || lt.Value != ':')
         {
             OnParseError(new CssParseError(cv.Info) { Value = cv, Type = CssParseErrorType.ParserColonExpected });
             return null;

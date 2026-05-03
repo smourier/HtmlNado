@@ -106,7 +106,7 @@ public class HtmlAttribute : HtmlNode
         }
     }
 
-    public new HtmlAttribute NextSibling
+    public new HtmlAttribute? NextSibling
     {
         get
         {
@@ -122,7 +122,7 @@ public class HtmlAttribute : HtmlNode
         }
     }
 
-    public new HtmlAttribute PreviousSibling
+    public new HtmlAttribute? PreviousSibling
     {
         get
         {
@@ -237,7 +237,7 @@ public class HtmlAttribute : HtmlNode
         writer.Write('\'');
     }
 
-    internal static string UnescapeText(string text, char quoteChar)
+    internal static string? UnescapeText(string? text, char quoteChar)
     {
         if (text == null)
             return null;
@@ -248,7 +248,7 @@ public class HtmlAttribute : HtmlNode
         return text.Replace("&apos;", quoteChar.ToString(CultureInfo.InvariantCulture));
     }
 
-    protected virtual string GetValue(ref bool escapeQuoteChar)
+    protected virtual string? GetValue(ref bool escapeQuoteChar)
     {
         using var sw = HtmlDocument.CreateStringWriter(OwnerDocument, CultureInfo.InvariantCulture);
         foreach (var node in ChildNodes)

@@ -4,7 +4,7 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
 {
     private readonly List<HtmlAttribute> _list = [];
 
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
     internal HtmlAttributeList(HtmlNode parent)
     {
@@ -23,12 +23,8 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
     public HtmlAttribute Add(string prefix, string localName, string namespaceURI, string value)
     {
         ArgumentNullException.ThrowIfNull(prefix);
-
         ArgumentNullException.ThrowIfNull(localName);
-
-        var owner = Parent?.OwnerDocument;
-        if (owner == null)
-            throw new InvalidOperationException();
+        var owner = (Parent?.OwnerDocument) ?? throw new InvalidOperationException();
 
         if (string.IsNullOrWhiteSpace(prefix) && !string.IsNullOrWhiteSpace(namespaceURI))
         {
@@ -45,22 +41,16 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
     {
         ArgumentNullException.ThrowIfNull(name);
 
-        var owner = Parent?.OwnerDocument;
-        if (owner == null)
-            throw new InvalidOperationException();
-
+        var owner = (Parent?.OwnerDocument) ?? throw new InvalidOperationException();
         var att = owner.CreateAttribute(string.Empty, name, string.Empty);
         att.Value = value;
         Add(att);
         return att;
     }
 
-    public void Add(HtmlAttribute attribute) => Add(attribute, true);
-
-    public void Add(HtmlAttribute attribute, bool replace)
+    public void Add(HtmlAttribute attribute, bool replace = true)
     {
         ArgumentNullException.ThrowIfNull(attribute);
-
         if (attribute.ParentNode != null)
             throw new ArgumentException(null, nameof(attribute));
 
@@ -83,7 +73,7 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, attribute));
     }
 
-    public string GetNamespacePrefixIfDefined(string namespaceURI)
+    public string? GetNamespacePrefixIfDefined(string namespaceURI)
     {
         ArgumentNullException.ThrowIfNull(namespaceURI);
 
@@ -113,7 +103,6 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
     public void Insert(int index, HtmlAttribute attribute)
     {
         ArgumentNullException.ThrowIfNull(attribute);
-
         if (attribute.ParentNode != null)
             throw new ArgumentException(null, nameof(attribute));
 
@@ -124,16 +113,13 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
 
     public bool Contains(HtmlAttribute item) => IndexOf(item) >= 0;
     public void CopyTo(HtmlAttribute[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
-
     public int IndexOf(HtmlAttribute attribute)
     {
         ArgumentNullException.ThrowIfNull(attribute);
-
         return _list.IndexOf(attribute);
     }
 
     public int IndexOf(string name) => _list.FindIndex(a => name.EqualsIgnoreCase(a.Name));
-
     public int IndexOf(string localName, string namespaceURI)
     {
         if (localName == null || namespaceURI == null)
@@ -171,9 +157,7 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
     public bool RemoveByPrefix(string prefix, string localName)
     {
         ArgumentNullException.ThrowIfNull(prefix);
-
         ArgumentNullException.ThrowIfNull(localName);
-
         var att = _list.Find(a => localName.EqualsIgnoreCase(a.LocalName) && string.Equals(prefix, a.Prefix, StringComparison.Ordinal));
         if (att == null)
             return false;
@@ -184,9 +168,7 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
     public bool Remove(string localName, string namespaceURI)
     {
         ArgumentNullException.ThrowIfNull(localName);
-
         ArgumentNullException.ThrowIfNull(namespaceURI);
-
         var att = this[localName, namespaceURI];
         if (att == null)
             return false;
@@ -197,7 +179,6 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
     public bool Remove(string name)
     {
         ArgumentNullException.ThrowIfNull(name);
-
         var att = this[name];
         if (att == null)
             return false;
@@ -220,18 +201,16 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
         return true;
     }
 
-    public HtmlAttribute this[string name]
+    public HtmlAttribute? this[string name]
     {
         get
         {
             ArgumentNullException.ThrowIfNull(name);
-
             return _list.Find(a => name.EqualsIgnoreCase(a.Name));
         }
         set
         {
             ArgumentNullException.ThrowIfNull(value);
-
             if (value.ParentNode != null)
                 throw new ArgumentException(null, nameof(value));
 
@@ -247,20 +226,17 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
         }
     }
 
-    public HtmlAttribute this[string localName, string namespaceURI]
+    public HtmlAttribute? this[string localName, string namespaceURI]
     {
         get
         {
             ArgumentNullException.ThrowIfNull(localName);
-
             ArgumentNullException.ThrowIfNull(namespaceURI);
-
             return _list.Find(a => localName.EqualsIgnoreCase(a.LocalName) && a.NamespaceURI != null && string.Equals(namespaceURI, a.NamespaceURI, StringComparison.Ordinal));
         }
         set
         {
             ArgumentNullException.ThrowIfNull(value);
-
             if (value.ParentNode != null)
                 throw new ArgumentException(null, nameof(value));
 
@@ -294,7 +270,7 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
 
     public IEnumerator<HtmlAttribute> GetEnumerator() => _list.GetEnumerator();
 
-    int IList.Add(object value)
+    int IList.Add(object? value)
     {
         var count = Count;
         Add((HtmlAttribute)value);

@@ -146,7 +146,7 @@ public class HtmlElement : HtmlNode
 
     public override HtmlNodeType NodeType => _nodeType;
 
-    internal HtmlElement GetParentToClose(int indent, string name)
+    internal HtmlElement? GetParentToClose(int indent, string name)
     {
         // NOTE: this avoids possible stack overflow errors for "super malformed" documents
         if (indent > _maxRecursion)
@@ -228,9 +228,6 @@ public class HtmlElement : HtmlNode
             writer.Write(Name);
         }
 
-#if DEBUG
-        //writer.Write(" x:lname=" + LocalName + " x:closed=" + _closed + " x:empty=" + _empty + " x:ns" + (IsDefaultNamespaceOverridden ? "+" : "") + "='" + ((Namespace.IsNull) ? "null" : Namespace.Prefix + ":" + Namespace.NamespaceURI) + "'");
-#endif
         if (HasAttributes)
         {
             foreach (var attribute in Attributes)
@@ -253,7 +250,7 @@ public class HtmlElement : HtmlNode
             {
                 writer.Write(" ?>");
             }
-            else if (Name.StartsWith("!", StringComparison.Ordinal))
+            else if (Name.StartsWith('!'))
             {
                 // suc as !DOCTYPE
                 writer.Write('>');
@@ -290,7 +287,6 @@ public class HtmlElement : HtmlNode
     public override void WriteContentTo(TextWriter writer)
     {
         ArgumentNullException.ThrowIfNull(writer);
-
         if (!NoChild)
         {
             if (HasChildNodes)
@@ -310,10 +306,7 @@ public class HtmlElement : HtmlNode
         if (IsDocumentType)
         {
             var owner = OwnerDocument;
-            if (owner != null)
-            {
-                owner.WriteDocType(writer);
-            }
+            owner?.WriteDocType(writer);
             return;
         }
 
@@ -344,7 +337,6 @@ public class HtmlElement : HtmlNode
     public override void WriteContentTo(XmlWriter writer)
     {
         ArgumentNullException.ThrowIfNull(writer);
-
         if (Name.EqualsIgnoreCase("!doctype"))
             return;
 

@@ -1,4 +1,6 @@
-﻿namespace HtmlNado;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace HtmlNado;
 
 [TypeConverter(typeof(ExpandableObjectConverter))]
 public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNamespaceResolver
@@ -17,20 +19,20 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
     private Collection<HtmlError> _errors;
     private HtmlNodeList _childNodes;
     private HtmlAttributeList _attributes;
-    private HtmlNode _parentNode;
-    private HtmlDocument _ownerDocument;
+    private HtmlNode? _parentNode;
+    private HtmlDocument? _ownerDocument;
     private string _prefix;
     private string _localName;
     private object _tag;
 
     // caches
-    private string _innerText;
-    private string _outerHtml;
-    private string _innerHtml;
-    private string _outerXml;
-    private string _innerXml;
+    private string? _innerText;
+    private string? _outerHtml;
+    private string? _innerHtml;
+    private string? _outerXml;
+    private string? _innerXml;
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     static HtmlNode()
     {
@@ -39,13 +41,12 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         NamespaceManager.AddNamespace(XhtmlPrefix, XhtmlNamespaceURI);
     }
 
-    protected HtmlNode(string prefix, string localName, string namespaceURI, HtmlDocument ownerDocument)
+    protected HtmlNode(string prefix, string localName, string namespaceURI, HtmlDocument? ownerDocument)
     {
         ArgumentNullException.ThrowIfNull(prefix);
-
         ArgumentNullException.ThrowIfNull(localName);
 
-        if (ownerDocument == null && !(this is HtmlDocument))
+        if (ownerDocument == null && this is not HtmlDocument)
             throw new ArgumentNullException(nameof(ownerDocument));
 
         _prefix = prefix;
@@ -58,7 +59,8 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
 
     public override string ToString() => Name;
 
-    public static string GetValidXmlName(string name)
+    [return: NotNullIfNotNull(nameof(name))]
+    public static string? GetValidXmlName(string? name)
     {
         if (string.IsNullOrEmpty(name))
             return name;
@@ -80,10 +82,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         _outerHtml = null;
         _outerXml = null;
 
-        if (_parentNode != null)
-        {
-            _parentNode.ClearCaches(index + 1);
-        }
+        _parentNode?.ClearCaches(index + 1);
     }
 
     protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -132,7 +131,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         }
     }
 
-    public virtual HtmlNode NextSibling
+    public virtual HtmlNode? NextSibling
     {
         get
         {
@@ -167,7 +166,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         }
     }
 
-    public virtual HtmlNode PreviousSibling
+    public virtual HtmlNode? PreviousSibling
     {
         get
         {
@@ -187,10 +186,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
     {
         get
         {
-            if (_childNodes == null)
-            {
-                _childNodes = new HtmlNodeList(this);
-            }
+            _childNodes ??= new HtmlNodeList(this);
             return _childNodes;
         }
     }
@@ -199,10 +195,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
     {
         get
         {
-            if (_attributes == null)
-            {
-                _attributes = new HtmlAttributeList(this);
-            }
+            _attributes ??= new HtmlAttributeList(this);
             return _attributes;
         }
     }
@@ -220,7 +213,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         }
     }
 
-    public string Prefix
+    public string? Prefix
     {
         get => _prefix;
         set
@@ -236,7 +229,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         }
     }
 
-    protected virtual void ParseName(string name, out string prefix, out string localName)
+    protected virtual void ParseName(string? name, out string? prefix, out string? localName)
     {
         if (name == null)
         {
@@ -245,7 +238,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
             return;
         }
 
-        int pos = name.IndexOf(':');
+        var pos = name.IndexOf(':');
         if (pos < 0)
         {
             prefix = string.Empty;
@@ -253,8 +246,8 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
             return;
         }
 
-        prefix = name.Substring(0, pos).Nullify();
-        localName = name.Substring(pos + 1).Nullify();
+        prefix = name[..pos].Nullify();
+        localName = name[(pos + 1)..].Nullify();
         if (prefix == null || localName == null)
         {
             prefix = string.Empty;
@@ -288,7 +281,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
             return;
 
         ClearCaches();
-        ParseName(name, out string prefix, out string localName);
+        ParseName(name, out var prefix, out var localName);
         Prefix = prefix;
         LocalName = localName;
         OnPropertyChanged(new PropertyChangedEventArgs(nameof(Name)));
@@ -307,7 +300,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         }
     }
 
-    public HtmlDocument OwnerDocument
+    public HtmlDocument? OwnerDocument
     {
         get
         {
@@ -347,7 +340,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         }
     }
 
-    public virtual string Value
+    public virtual string? Value
     {
         get => null;
         set
@@ -375,7 +368,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
 
     internal static bool IsHtmlNs(string ns) => string.IsNullOrWhiteSpace(ns) || string.Equals(ns, XhtmlNamespaceURI, StringComparison.Ordinal);
 
-    public HtmlNode ParentNode
+    public HtmlNode? ParentNode
     {
         get => _parentNode;
         internal set
@@ -407,10 +400,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
     {
         ArgumentNullException.ThrowIfNull(error);
 
-        if (_errors == null)
-        {
-            _errors = [];
-        }
+        _errors ??= [];
         _errors.Add(error);
     }
 
@@ -427,10 +417,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
     {
         get
         {
-            if (_errors == null)
-            {
-                _errors = [];
-            }
+            _errors ??= [];
             return _errors;
         }
     }
@@ -554,7 +541,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         set => throw new InvalidOperationException();
     }
 
-    public HtmlNode FirstChild
+    public HtmlNode? FirstChild
     {
         get
         {
@@ -565,7 +552,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         }
     }
 
-    public HtmlNode LastChild
+    public HtmlNode? LastChild
     {
         get
         {
@@ -580,9 +567,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
     public HtmlAttribute SetAttribute(string prefix, string localName, string namespaceURI, string value)
     {
         ArgumentNullException.ThrowIfNull(prefix);
-
         ArgumentNullException.ThrowIfNull(localName);
-
         ArgumentNullException.ThrowIfNull(namespaceURI);
 
         var att = Attributes[localName, namespaceURI];
@@ -610,7 +595,6 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
     public bool RemoveAttribute(string localName, string namespaceURI)
     {
         ArgumentNullException.ThrowIfNull(localName);
-
         ArgumentNullException.ThrowIfNull(namespaceURI);
 
         if (_attributes == null)
@@ -622,7 +606,6 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
     public bool RemoveAttributeByPrefix(string prefix, string localName)
     {
         ArgumentNullException.ThrowIfNull(prefix);
-
         ArgumentNullException.ThrowIfNull(localName);
 
         if (_attributes == null)
@@ -668,7 +651,6 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
     public bool HasAttribute(string localName, string namespaceURI)
     {
         ArgumentNullException.ThrowIfNull(localName);
-
         ArgumentNullException.ThrowIfNull(namespaceURI);
 
         if (_attributes == null)
@@ -680,7 +662,6 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
     public bool HasNonNullNorWhitespaceAttribute(string name)
     {
         ArgumentNullException.ThrowIfNull(name);
-
         return GetNullifiedAttributeValue(name) != null;
     }
 
@@ -694,7 +675,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         return Attributes[name] != null;
     }
 
-    public string GetAttributeValue(string name)
+    public string? GetAttributeValue(string name)
     {
         ArgumentNullException.ThrowIfNull(name);
 
@@ -725,7 +706,6 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
     public T GetAttributeValueByPrefix<T>(string prefix, string localName, T defaultValue)
     {
         ArgumentNullException.ThrowIfNull(prefix);
-
         ArgumentNullException.ThrowIfNull(localName);
 
         if (_attributes == null)
@@ -738,20 +718,18 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         return HtmlDocument.ChangeType(att.Value, defaultValue);
     }
 
-    public string GetNullifiedAttributeValue(string name)
+    public string? GetNullifiedAttributeValue(string name)
     {
         ArgumentNullException.ThrowIfNull(name);
-
         if (_attributes == null)
             return null;
 
         return Attributes[name]?.Value.Nullify();
     }
 
-    public string GetNullifiedAttributeValue(string localName, string namespaceURI)
+    public string? GetNullifiedAttributeValue(string localName, string namespaceURI)
     {
         ArgumentNullException.ThrowIfNull(localName);
-
         ArgumentNullException.ThrowIfNull(namespaceURI);
 
         if (_attributes == null)
@@ -763,7 +741,6 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
     public T GetAttributeValue<T>(string localName, string namespaceURI, T defaultValue)
     {
         ArgumentNullException.ThrowIfNull(localName);
-
         ArgumentNullException.ThrowIfNull(namespaceURI);
 
         if (_attributes == null)
@@ -952,20 +929,9 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
 
     public virtual IXPathNavigable CreateNavigable(HtmlNodeNavigatorOptions options) => new Navigable(OwnerDocument, this, options);
 
-    private class Navigable : IXPathNavigable
+    private sealed class Navigable(HtmlDocument ownerDocument, HtmlNode node, HtmlNodeNavigatorOptions options) : IXPathNavigable
     {
-        private readonly HtmlDocument _ownerDocument;
-        private readonly HtmlNode _node;
-        private readonly HtmlNodeNavigatorOptions _options;
-
-        public Navigable(HtmlDocument ownerDocument, HtmlNode node, HtmlNodeNavigatorOptions options)
-        {
-            _ownerDocument = ownerDocument;
-            _node = node;
-            _options = options;
-        }
-
-        public XPathNavigator CreateNavigator() => new HtmlNodeNavigator(_ownerDocument, _node, _options);
+        public XPathNavigator CreateNavigator() => new HtmlNodeNavigator(ownerDocument, node, options);
     }
 
     public XPathNavigator CreateNavigator() => CreateNavigator(HtmlNodeNavigatorOptions.None);

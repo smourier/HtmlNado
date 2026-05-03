@@ -7,13 +7,13 @@ public class HtmlDocument : HtmlNode
 
     private HtmlOptions _options = new();
     private string _filePath;
-    private HtmlElement _baseElement;
+    private HtmlElement? _baseElement;
     private bool _baseElementSearched;
     private bool? _xhtml;
-    private HtmlAttribute _namespaceXml;
-    private Dictionary<string, string> _declaredNamespaces;
-    private Dictionary<string, string> _declaredPrefixes;
-    private Dictionary<string, HtmlNode> _nodesById;
+    private HtmlAttribute? _namespaceXml;
+    private Dictionary<string, string>? _declaredNamespaces;
+    private Dictionary<string, string>? _declaredPrefixes;
+    private Dictionary<string, HtmlNode>? _nodesById;
 
     public event EventHandler<HtmlDocumentParseEventArgs> Parsing;
     public event EventHandler<HtmlDocumentParseEventArgs> Parsed;
@@ -27,10 +27,10 @@ public class HtmlDocument : HtmlNode
     public virtual Encoding DetectedEncoding { get; private set; }
     public virtual Uri BaseAddress { get; set; }
     public virtual bool ReaderWasRestarted { get; private set; }
-    public virtual HtmlElement DocumentType { get; private set; }
-    public virtual HtmlElement HtmlElement { get; private set; }
-    public virtual HtmlElement BodyElement { get; private set; }
-    public virtual HtmlElement HeadElement { get; private set; }
+    public virtual HtmlElement? DocumentType { get; private set; }
+    public virtual HtmlElement? HtmlElement { get; private set; }
+    public virtual HtmlElement? BodyElement { get; private set; }
+    public virtual HtmlElement? HeadElement { get; private set; }
 
     internal static T ChangeType<T>(object value, T defaultValue) => Conversions.ChangeType(value, defaultValue);
 
@@ -64,7 +64,7 @@ public class HtmlDocument : HtmlNode
         }
     }
 
-    public virtual string Title
+    public virtual string? Title
     {
         get => SelectSingleNode("//title", HtmlNodeNavigatorOptions.LowercasedNames)?.InnerText;
         set
@@ -505,37 +505,25 @@ public class HtmlDocument : HtmlNode
     {
         if (prefix == null)
         {
-            if (_declaredPrefixes != null)
-            {
-                _declaredPrefixes.Remove(prefix);
-            }
+            _declaredPrefixes?.Remove(prefix);
         }
         else
         {
             ArgumentNullException.ThrowIfNull(uri);
 
-            if (_declaredPrefixes == null)
-            {
-                _declaredPrefixes = new Dictionary<string, string>(StringComparer.Ordinal);
-            }
+            _declaredPrefixes ??= new Dictionary<string, string>(StringComparer.Ordinal);
             _declaredPrefixes[prefix] = uri;
         }
 
         if (uri == null)
         {
-            if (_declaredNamespaces != null)
-            {
-                _declaredNamespaces.Remove(uri);
-            }
+            _declaredNamespaces?.Remove(uri);
         }
         else
         {
             ArgumentNullException.ThrowIfNull(prefix);
 
-            if (_declaredNamespaces == null)
-            {
-                _declaredNamespaces = new Dictionary<string, string>(StringComparer.Ordinal);
-            }
+            _declaredNamespaces ??= new Dictionary<string, string>(StringComparer.Ordinal);
             _declaredNamespaces[uri] = prefix;
         }
     }
@@ -797,18 +785,15 @@ public class HtmlDocument : HtmlNode
                     text.StreamOrder = htmlReader._offset;
                     text.IsCData = (htmlReader.State.FragmentType == HtmlFragmentType.CDataText);
                     text.Value = htmlReader.State.Value;
-                    if (current != null)
-                    {
-                        current.ChildNodes.Add(text);
-                    }
+                    current?.ChildNodes.Add(text);
                     break;
 
                 case HtmlFragmentType.TagOpen:
                     string elementName;
                     bool processingInstruction;
-                    if (htmlReader.State.Value.StartsWith("?", StringComparison.Ordinal))
+                    if (htmlReader.State.Value.StartsWith('?'))
                     {
-                        elementName = htmlReader.State.Value.Substring(1);
+                        elementName = htmlReader.State.Value[1..];
                         processingInstruction = true;
                     }
                     else
@@ -841,10 +826,7 @@ public class HtmlDocument : HtmlNode
                         element.IsProcessingInstruction = processingInstruction;
                     }
 
-                    if (current != null)
-                    {
-                        current.ChildNodes.Add(element);
-                    }
+                    current?.ChildNodes.Add(element);
 
                     current = element;
                     break;
@@ -854,7 +836,7 @@ public class HtmlDocument : HtmlNode
                     if (!DetectEncoding(htmlReader, element, firstPass))
                         return false;
 
-                    if (element != null && (element.Name.StartsWith("!", StringComparison.Ordinal) || element.IsProcessingInstruction))
+                    if (element != null && (element.Name.StartsWith('!') || element.IsProcessingInstruction))
                     {
                         element.IsEmpty = true;
                         if (current != null && current.ParentNode != null)
@@ -904,7 +886,7 @@ public class HtmlDocument : HtmlNode
                             // check children closure
                             foreach (var child in parent.ChildNodes)
                             {
-                                if (!(child is HtmlElement childElement))
+                                if (child is not HtmlElement childElement)
                                     continue;
 
                                 if (!childElement.IsClosed)
@@ -935,10 +917,7 @@ public class HtmlDocument : HtmlNode
                     error.Node = text;
                     text.Value = "</" + htmlReader.State.Value + ">";
                     text.AddError(error);
-                    if (current != null)
-                    {
-                        current.ChildNodes.Add(text);
-                    }
+                    current?.ChildNodes.Add(text);
                     break;
 
                 case HtmlFragmentType.AttName:
@@ -956,10 +935,7 @@ public class HtmlDocument : HtmlNode
                         AddError(error);
                     }
 
-                    if (current != null)
-                    {
-                        current.Attributes.AddNoCheck(att);
-                    }
+                    current?.Attributes.AddNoCheck(att);
                     currentAtt = att;
                     break;
 
@@ -984,10 +960,7 @@ public class HtmlDocument : HtmlNode
                     var comment = CreateComment();
                     comment.StreamOrder = htmlReader._offset;
                     comment.Value = htmlReader.State.Value;
-                    if (current != null)
-                    {
-                        current.ChildNodes.Add(comment);
-                    }
+                    current?.ChildNodes.Add(comment);
                     break;
             }
 
@@ -1123,10 +1096,7 @@ public class HtmlDocument : HtmlNode
 
         if (Path.GetExtension(filePath).EqualsIgnoreCase(".xml"))
         {
-            if (encoding == null)
-            {
-                encoding = Encoding.UTF8;
-            }
+            encoding ??= Encoding.UTF8;
 
             using var writer = new XmlTextWriter(filePath, encoding);
             Save(writer);

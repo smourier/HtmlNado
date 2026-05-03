@@ -27,10 +27,7 @@ public class HtmlReader
 
         ParserState = HtmlParserState.Text;
         Value = new StringBuilder();
-        if (options == null)
-        {
-            options = new HtmlOptions();
-        }
+        options ??= new HtmlOptions();
 
         FirstEncodingErrorOffset = -1;
         Errors = new Collection<HtmlError>();
@@ -52,7 +49,7 @@ public class HtmlReader
     {
         get
         {
-            if (!(TextReader is StreamReader sr))
+            if (TextReader is not StreamReader sr)
                 return false;
 
             return sr.BaseStream != null && sr.BaseStream.CanSeek;
@@ -64,7 +61,7 @@ public class HtmlReader
         if (!IsRestartable)
             throw new InvalidOperationException();
 
-        if (!(TextReader is StreamReader sr) || sr.BaseStream == null || !sr.BaseStream.CanSeek)
+        if (TextReader is not StreamReader sr || sr.BaseStream == null || !sr.BaseStream.CanSeek)
             return false;
 
         return sr.BaseStream.Seek(0, SeekOrigin.Begin) == 0;

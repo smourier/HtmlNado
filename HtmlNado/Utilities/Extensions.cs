@@ -241,6 +241,6 @@ internal static class Extensions
         if (index == startIndex)
             return null;
 
-        return header.Substring(startIndex, index - startIndex).Trim();
+        return header[startIndex..index].Trim();
     }
 }

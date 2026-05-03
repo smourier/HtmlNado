@@ -25,11 +25,9 @@ public class HtmlDocumentWithCode : HtmlXPathDocument
     public override HtmlAttribute CreateAttribute(string prefix, string localName, string namespaceURI)
     {
         ArgumentNullException.ThrowIfNull(prefix);
-
-        if (prefix.IndexOf(':') >= 0)
-            throw new ArgumentException(null, nameof(prefix));
-
         ArgumentNullException.ThrowIfNull(localName);
+        if (prefix.Contains(':'))
+            throw new ArgumentException(null, nameof(prefix));
 
         return new HtmlAttributeWithCode(prefix, localName, namespaceURI, this);
     }
@@ -41,17 +39,17 @@ public class HtmlDocumentWithCode : HtmlXPathDocument
             var startDirective = CodeStartToken + DirectiveToken.ToString(CultureInfo.InvariantCulture);
             if (string.Equals(e.Reader.State.Value, startDirective, StringComparison.OrdinalIgnoreCase))
             {
-                if (e.CurrentNode is HtmlElement && e.CurrentNode.HasAttributes)
+                if (e.CurrentNode is HtmlElement element1 && e.CurrentNode.HasAttributes)
                 {
                     var name = e.CurrentNode.Attributes[0].Name;
                     if (name.EndsWith(CodeEndToken.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase))
                     {
-                        name = name.Substring(0, name.Length - 1);
+                        name = name[..^1];
                     }
 
                     e.CurrentNode.Name += " " + name;
                     e.CurrentNode.Attributes.RemoveAt(0);
-                    var element = (HtmlElement)e.CurrentNode;
+                    var element = element1;
                     element.CloseChar = CodeEndToken;
                     element.IsEmpty = true;
                     e.CurrentNode.RemoveAttribute(CodeStartToken.ToString(CultureInfo.InvariantCulture));
@@ -59,25 +57,25 @@ public class HtmlDocumentWithCode : HtmlXPathDocument
                     e.CurrentNode = e.CurrentNode.ParentNode;
                 }
             }
-            else if (e.Reader.State.Value.StartsWith(startDirective, StringComparison.OrdinalIgnoreCase) && e.CurrentNode is HtmlElement)
+            else if (e.Reader.State.Value.StartsWith(startDirective, StringComparison.OrdinalIgnoreCase) && e.CurrentNode is HtmlElement element1)
             {
-                var name = e.CurrentNode.Name.Substring(2);
+                var name = e.CurrentNode.Name[2..];
                 if (name.EndsWith(CodeEndToken.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase))
                 {
-                    name = name.Substring(0, name.Length - 1);
+                    name = name[..^1];
                 }
 
                 e.CurrentNode.Name = startDirective + " " + name;
-                var element = (HtmlElement)e.CurrentNode;
+                var element = element1;
                 element.CloseChar = CodeEndToken;
                 element.IsEmpty = true;
                 e.CurrentNode.RemoveAttribute(CodeStartToken.ToString(CultureInfo.InvariantCulture));
                 e.CurrentNode.RemoveAttribute(CodeEndToken.ToString(CultureInfo.InvariantCulture));
                 e.CurrentNode = e.CurrentNode.ParentNode;
             }
-            else if (e.Reader.State.Value.StartsWith(CodeStartToken.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase) && e.CurrentNode is HtmlElement)
+            else if (e.Reader.State.Value.StartsWith(CodeStartToken.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase) && e.CurrentNode is HtmlElement element2)
             {
-                var element = (HtmlElement)e.CurrentNode;
+                var element = element2;
                 element.DontCloseIfEmpty = true;
                 element.IsEmpty = true;
                 e.CurrentNode = e.CurrentNode.ParentNode;
@@ -94,7 +92,7 @@ public class HtmlDocumentWithCode : HtmlXPathDocument
         }
     }
 
-    protected override void ParseName(string name, out string prefix, out string localName)
+    protected override void ParseName(string? name, out string? prefix, out string? localName)
     {
         if (name != null && name.Length > 2 &&
             name.StartsWith(CodeStartToken.ToString(CultureInfo.CurrentCulture), StringComparison.OrdinalIgnoreCase) &&
@@ -108,7 +106,7 @@ public class HtmlDocumentWithCode : HtmlXPathDocument
         base.ParseName(name, out prefix, out localName);
     }
 
-    private static void Unclose(HtmlElement element)
+    private static void Unclose(HtmlElement? element)
     {
         if (element == null)
             return;

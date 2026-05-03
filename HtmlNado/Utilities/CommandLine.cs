@@ -32,7 +32,7 @@ public static class CommandLine
             var named = false;
             if (arg[0] == '-' || arg[0] == '/')
             {
-                arg = arg.Substring(1);
+                arg = arg[1..];
                 named = true;
             }
 
@@ -46,8 +46,8 @@ public static class CommandLine
             }
             else
             {
-                name = arg.Substring(0, pos).Trim();
-                value = arg.Substring(pos + 1).Trim();
+                name = arg[..pos].Trim();
+                value = arg[(pos + 1)..].Trim();
             }
 
             _positionArguments[i - 1] = arg;
@@ -71,7 +71,7 @@ public static class CommandLine
             for (var i = 0; i < line.Length; i++)
             {
                 if (line[i] == ' ' && !inParens)
-                    return line.Substring(i + 1).TrimStart();
+                    return line[(i + 1)..].TrimStart();
 
                 if (line[i] == '"')
                 {
@@ -89,13 +89,13 @@ public static class CommandLine
 
         foreach (string arg in arguments)
         {
-            if (arg.StartsWith("-", StringComparison.Ordinal) || arg.StartsWith("/", StringComparison.Ordinal))
+            if (arg.StartsWith('-') || arg.StartsWith('/'))
             {
                 var pos = arg.IndexOfAny(new[] { '=', ':' }, 1);
-                var argName = pos < 0 ? arg.Substring(1) : arg.Substring(1, pos - 1);
+                var argName = pos < 0 ? arg[1..] : arg[1..pos];
                 if (string.Compare(name, argName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    var value = pos < 0 ? string.Empty : arg.Substring(pos + 1).Trim();
+                    var value = pos < 0 ? string.Empty : arg[(pos + 1)..].Trim();
                     if (value.Length == 0)
                     {
                         if (typeof(T) == typeof(bool)) // special case for bool args: if it's there, return true
