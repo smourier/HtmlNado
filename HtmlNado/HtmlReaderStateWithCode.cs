@@ -1,0 +1,25 @@
+﻿namespace HtmlNado;
+
+public class HtmlReaderStateWithCode : HtmlReaderState
+{
+    public HtmlReaderStateWithCode(HtmlReaderWithCode reader, HtmlParserState rawParserState, string rawValue)
+        : base(reader, rawParserState, rawValue)
+    {
+    }
+
+    public new HtmlReaderWithCode Reader => (HtmlReaderWithCode)base.Reader;
+
+    public override string Value
+    {
+        get
+        {
+            if (RawValue != null && (RawParserState == HtmlParserState.AttValue || RawParserState == HtmlParserState.AttName) &&
+                RawValue.IndexOf(Reader.Document.CodeStartDelimiter.ToString(CultureInfo.InvariantCulture) + Reader.Document.CodeStartToken, StringComparison.OrdinalIgnoreCase) >= 0 &&
+                ((RawValue.StartsWith("'", StringComparison.Ordinal) && RawValue.EndsWith("'", StringComparison.Ordinal)) ||
+                (RawValue.StartsWith("\"", StringComparison.Ordinal) && RawValue.EndsWith("\"", StringComparison.Ordinal))))
+                return RawValue.Substring(1, RawValue.Length - 2);
+
+            return base.Value;
+        }
+    }
+}
