@@ -1,4 +1,6 @@
-﻿namespace HtmlNado;
+﻿using HtmlNado.Utilities;
+
+namespace HtmlNado;
 
 public partial class HtmlConverter
 {
@@ -126,7 +128,7 @@ public partial class HtmlConverter
         return char.IsDigit(name[1]);
     }
 
-    private static bool IsTitleTag(string? name) => name.EqualsIgnoreCase("title");
+    private static bool IsTitleTag(string? name) => name.EqualsOrdinalIgnoreCase("title");
 
     private string AppendPlainText(HtmlNode node)
     {
@@ -177,7 +179,7 @@ public partial class HtmlConverter
 
     protected virtual void AppendLinkPlainText(HtmlNode? node, TextWriter writer)
     {
-        if (node == null || !node.Name.EqualsIgnoreCase("a"))
+        if (node == null || !node.Name.EqualsOrdinalIgnoreCase("a"))
             return;
 
         var href = node.GetNullifiedAttributeValue("href");
@@ -206,7 +208,7 @@ public partial class HtmlConverter
 
     protected virtual void AppendImagePlaintText(HtmlNode? node, TextWriter writer)
     {
-        if (node == null || !node.Name.EqualsIgnoreCase("img"))
+        if (node == null || !node.Name.EqualsOrdinalIgnoreCase("img"))
             return;
 
         var src = node.GetNullifiedAttributeValue("src");
@@ -261,13 +263,13 @@ public partial class HtmlConverter
                 return;
             }
 
-            if (node.Name.EqualsIgnoreCase("img"))
+            if (node.Name.EqualsOrdinalIgnoreCase("img"))
             {
                 AppendImagePlaintText(node, writer);
                 return;
             }
 
-            if (node.Name.EqualsIgnoreCase("a"))
+            if (node.Name.EqualsOrdinalIgnoreCase("a"))
             {
                 AppendLinkPlainText(node, writer);
                 return;
@@ -282,7 +284,7 @@ public partial class HtmlConverter
                 return;
             }
 
-            if (node.Name.EqualsIgnoreCase("p"))
+            if (node.Name.EqualsOrdinalIgnoreCase("p"))
             {
                 WriterWriteLine(writer);
             }
@@ -292,7 +294,7 @@ public partial class HtmlConverter
                 AppendPlainText(node, writer);
             }
 
-            if (node.Name.EqualsIgnoreCase("br"))
+            if (node.Name.EqualsOrdinalIgnoreCase("br"))
             {
                 WriterWriteLine(writer);
             }
@@ -306,7 +308,7 @@ public partial class HtmlConverter
 
         foreach (var child in node.ChildNodes)
         {
-            if (_lastNode != null && _lastNode.Name.EqualsIgnoreCase("p"))
+            if (_lastNode != null && _lastNode.Name.EqualsOrdinalIgnoreCase("p"))
             {
                 WriterWriteLine(writer);
             }
@@ -453,7 +455,7 @@ public partial class HtmlConverter
 
     private static string? NormalizeUrl(string? url)
     {
-        url = url.Nullify();
+        url = url.ToNull();
         if (url == null)
             return null;
 

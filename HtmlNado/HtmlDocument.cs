@@ -1,4 +1,6 @@
-﻿namespace HtmlNado;
+﻿using HtmlNado.Utilities;
+
+namespace HtmlNado;
 
 [DebuggerDisplay("{Name}")]
 public class HtmlDocument : HtmlNode
@@ -627,7 +629,7 @@ public class HtmlDocument : HtmlNode
             return name;
 
         var ct = meta.GetNullifiedAttributeValue("http-equiv");
-        if (!ct.EqualsIgnoreCase("content-type"))
+        if (!ct.EqualsOrdinalIgnoreCase("content-type"))
             return null;
 
         return Utilities.Extensions.GetAttributeFromHeader(meta.GetNullifiedAttributeValue("content"), "charset");
@@ -641,7 +643,7 @@ public class HtmlDocument : HtmlNode
         if (DetectedEncoding != null)
             return true;
 
-        if (element == null || !element.Name.EqualsIgnoreCase("meta"))
+        if (element == null || !element.Name.EqualsOrdinalIgnoreCase("meta"))
             return true;
 
         var encodingName = GetEncodingName(element);
@@ -783,15 +785,15 @@ public class HtmlDocument : HtmlNode
                     {
                         DocumentType = element;
                     }
-                    else if (elementName.EqualsIgnoreCase("html"))
+                    else if (elementName.EqualsOrdinalIgnoreCase("html"))
                     {
                         HtmlElement = element;
                     }
-                    else if (elementName.EqualsIgnoreCase("body"))
+                    else if (elementName.EqualsOrdinalIgnoreCase("body"))
                     {
                         BodyElement = element;
                     }
-                    else if (elementName.EqualsIgnoreCase("head"))
+                    else if (elementName.EqualsOrdinalIgnoreCase("head"))
                     {
                         HeadElement = element;
                     }
@@ -929,7 +931,7 @@ public class HtmlDocument : HtmlNode
                     currentAtt.Value = HtmlAttribute.UnescapeText(htmlReader.State.Value, htmlReader.State.QuoteChar);
                     currentAtt.QuoteChar = htmlReader.State.QuoteChar;
 
-                    if (currentAtt.Name.EqualsIgnoreCase(XmlnsPrefix))
+                    if (currentAtt.Name.EqualsOrdinalIgnoreCase(XmlnsPrefix))
                     {
                         element = current as HtmlElement;
                         if (element != null && currentAtt.Value != null && !Options.EmptyNamespaces.Contains(currentAtt.Value))
@@ -1056,7 +1058,7 @@ public class HtmlDocument : HtmlNode
     {
         ArgumentNullException.ThrowIfNull(filePath);
 
-        if (Path.GetExtension(filePath).EqualsIgnoreCase(".xml"))
+        if (Path.GetExtension(filePath).EqualsOrdinalIgnoreCase(".xml"))
         {
             using var writer = new XmlTextWriter(filePath, Encoding.UTF8);
             Save(writer);
@@ -1079,7 +1081,7 @@ public class HtmlDocument : HtmlNode
     {
         ArgumentNullException.ThrowIfNull(filePath);
 
-        if (Path.GetExtension(filePath).EqualsIgnoreCase(".xml"))
+        if (Path.GetExtension(filePath).EqualsOrdinalIgnoreCase(".xml"))
         {
             encoding ??= Encoding.UTF8;
 
@@ -1187,7 +1189,7 @@ public class HtmlDocument : HtmlNode
                         break;
 
                     case HtmlNodeType.Element:
-                        if (!node.Name.EqualsIgnoreCase("html") || node != HtmlElement)
+                        if (!node.Name.EqualsOrdinalIgnoreCase("html") || node != HtmlElement)
                             return false;
 
                         break;

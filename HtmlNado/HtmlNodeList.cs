@@ -1,4 +1,6 @@
-﻿namespace HtmlNado;
+﻿using HtmlNado.Utilities;
+
+namespace HtmlNado;
 
 public sealed class HtmlNodeList : IList<HtmlNode>, INotifyCollectionChanged
 {
@@ -13,8 +15,8 @@ public sealed class HtmlNodeList : IList<HtmlNode>, INotifyCollectionChanged
     }
 
     public int Count => _list.Count;
-    public HtmlNode? this[string? name] => _list.Find(n => n.Name.EqualsIgnoreCase(name));
-    public HtmlNode? this[string? localName, string? namespaceURI] => _list.Find(a => localName.EqualsIgnoreCase(a.LocalName) && a.NamespaceURI != null && string.Equals(namespaceURI, a.NamespaceURI, StringComparison.Ordinal));
+    public HtmlNode? this[string? name] => _list.Find(n => n.Name.EqualsOrdinalIgnoreCase(name));
+    public HtmlNode? this[string? localName, string? namespaceURI] => _list.Find(a => localName.EqualsOrdinalIgnoreCase(a.LocalName) && a.NamespaceURI != null && string.Equals(namespaceURI, a.NamespaceURI, StringComparison.Ordinal));
     public HtmlNode this[int index]
     {
         get => _list[index];

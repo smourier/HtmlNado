@@ -1,4 +1,6 @@
-﻿namespace HtmlNado;
+﻿using HtmlNado.Utilities;
+
+namespace HtmlNado;
 
 public class HtmlReader
 {
@@ -110,7 +112,7 @@ public class HtmlReader
         ArgumentNullException.ThrowIfNull(state);
         if (state.ParserState == HtmlParserState.AttName)
         {
-            _attIsScriptType = state.Value != null && _currentElement != null && state.Value.EqualsIgnoreCase("type") && _currentElement.EqualsIgnoreCase("script");
+            _attIsScriptType = state.Value != null && _currentElement != null && state.Value.EqualsOrdinalIgnoreCase("type") && _currentElement.EqualsOrdinalIgnoreCase("script");
         }
         else if (_attIsScriptType && state.ParserState == HtmlParserState.AttValue && state.Value != null)
         {
@@ -267,7 +269,7 @@ public class HtmlReader
                     if (((c == '>') || (IsWhiteSpace(c))) && (Value.Length >= (_currentElement?.Length + 2)) &&
                         (Value[Value.Length - (_currentElement?.Length ?? 0) - 2] == '<') &&
                         (Value[Value.Length - (_currentElement?.Length ?? 0) - 1] == '/') &&
-                        (Value.ToString(Value.Length - (_currentElement?.Length ?? 0), _currentElement?.Length ?? 0).EqualsIgnoreCase(_currentElement)))
+                        (Value.ToString(Value.Length - (_currentElement?.Length ?? 0), _currentElement?.Length ?? 0).EqualsOrdinalIgnoreCase(_currentElement)))
                     {
                         var rawText = Value.ToString(0, Value.Length - (_currentElement?.Length ?? 0) - 2);
                         PushCurrentState(HtmlParserState.Text, rawText);

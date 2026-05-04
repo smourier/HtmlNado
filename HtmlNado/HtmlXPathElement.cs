@@ -1,4 +1,6 @@
-﻿namespace HtmlNado;
+﻿using HtmlNado.Utilities;
+
+namespace HtmlNado;
 
 public class HtmlXPathElement : HtmlElement
 {
@@ -143,7 +145,7 @@ public class HtmlXPathElement : HtmlElement
             foreach (var att in Attributes)
             {
                 var eatt = sameName[i].Attributes[att.LocalName, att.NamespaceURI];
-                if (eatt == null || !eatt.Value.EqualsIgnoreCase(att.Value))
+                if (eatt == null || !eatt.Value.EqualsOrdinalIgnoreCase(att.Value))
                 {
                     same = false;
                     break;

@@ -7,7 +7,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Using Include="HtmlNado.Utilities" />
 		<Using Include="System" />
 		<Using Include="System.Collections" />
 		<Using Include="System.Collections.Concurrent" />
@@ -16,6 +15,7 @@
 		<Using Include="System.Collections.ObjectModel" />
 		<Using Include="System.ComponentModel" />
 		<Using Include="System.Diagnostics" />
+		<Using Include="System.Diagnostics.CodeAnalysis" />
 		<Using Include="System.Globalization" />
 		<Using Include="System.IO" />
 		<Using Include="System.IO.Compression" />

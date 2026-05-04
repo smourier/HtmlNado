@@ -1,4 +1,6 @@
-﻿namespace HtmlNado;
+﻿using HtmlNado.Utilities;
+
+namespace HtmlNado;
 
 public class HtmlTextBlockReader
 {
@@ -63,7 +65,7 @@ public class HtmlTextBlockReader
         if (name == null)
             return null;
 
-        if (name.EqualsIgnoreCase("title"))
+        if (name.EqualsOrdinalIgnoreCase("title"))
             return HtmlTextBlockType.Title;
 
         if (name.Length != 2)

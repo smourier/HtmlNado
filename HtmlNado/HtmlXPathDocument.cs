@@ -1,11 +1,13 @@
-﻿namespace HtmlNado;
+﻿using HtmlNado.Utilities;
+
+namespace HtmlNado;
 
 public class HtmlXPathDocument : HtmlDocument
 {
     public const string HtmlTransformNamespaceUri = "http://www.simonmourier.com/htf/2026/1";
     public const string HtmlTransformNamespacePrefix = "htf";
 
-    private List<Tuple<string, string>> _filteredAttributes = [];
+    private readonly List<Tuple<string, string>> _filteredAttributes = [];
     internal List<Tuple<string, string>> _discriminantAttributes = [];
 
     static HtmlXPathDocument()
@@ -14,7 +16,7 @@ public class HtmlXPathDocument : HtmlDocument
         HtmlTransformNamespaceManager.AddNamespace(HtmlTransformNamespacePrefix, HtmlTransformNamespaceUri);
     }
 
-    public static XmlNamespaceManager HtmlTransformNamespaceManager { get; private set; }
+    public static XmlNamespaceManager HtmlTransformNamespaceManager { get; }
 
     private static bool IsNamespaceAttribute(HtmlAttribute attribute) => attribute != null && string.Equals(attribute.NamespaceURI, XmlnsNamespaceURI, StringComparison.Ordinal) && string.Equals(attribute.Prefix, XmlnsPrefix, StringComparison.Ordinal);
 
@@ -109,7 +111,7 @@ public class HtmlXPathDocument : HtmlDocument
                                     var nsAtt = element.Attributes[replaceTokenNs + replaceName, HtmlTransformNamespaceUri];
                                     if (nsAtt != null)
                                     {
-                                        ns = nsAtt.Value.Nullify();
+                                        ns = nsAtt.Value.ToNull();
                                     }
 
                                     HtmlAttribute? replaceAtt;
@@ -140,7 +142,7 @@ public class HtmlXPathDocument : HtmlDocument
                                     var nsAtt = element.Attributes[removeTokenNs + removeName, HtmlTransformNamespaceUri];
                                     if (nsAtt != null)
                                     {
-                                        ns = nsAtt.Value.Nullify();
+                                        ns = nsAtt.Value.ToNull();
                                     }
 
                                     var removeAtt = ns != null ? other.Attributes[removeName, ns] : other.Attributes[removeName];
@@ -248,8 +250,8 @@ public class HtmlXPathDocument : HtmlDocument
 
         foreach (var pair in _discriminantAttributes)
         {
-            var ns = attribute.NamespaceURI.Nullify();
-            var dns = pair.Item2.Nullify();
+            var ns = attribute.NamespaceURI.ToNull();
+            var dns = pair.Item2.ToNull();
             if (string.Equals(ns, dns, StringComparison.Ordinal) && string.Equals(pair.Item1, attribute.LocalName, StringComparison.Ordinal))
                 return true;
         }
@@ -265,8 +267,8 @@ public class HtmlXPathDocument : HtmlDocument
 
         foreach (var pair in _filteredAttributes)
         {
-            var ns = attribute.NamespaceURI.Nullify();
-            var dns = pair.Item2.Nullify();
+            var ns = attribute.NamespaceURI.ToNull();
+            var dns = pair.Item2.ToNull();
             if (string.Equals(ns, dns, StringComparison.Ordinal) && string.Equals(pair.Item1, attribute.LocalName, StringComparison.Ordinal))
                 return true;
         }

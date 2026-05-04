@@ -1,4 +1,6 @@
-﻿namespace HtmlNado;
+﻿using HtmlNado.Utilities;
+
+namespace HtmlNado;
 
 public sealed class HtmlAttributeList : IList<HtmlAttribute>, INotifyCollectionChanged
 {
@@ -118,13 +120,13 @@ public sealed class HtmlAttributeList : IList<HtmlAttribute>, INotifyCollectionC
         return _list.IndexOf(attribute);
     }
 
-    public int IndexOf(string? name) => _list.FindIndex(a => name.EqualsIgnoreCase(a.Name));
+    public int IndexOf(string? name) => _list.FindIndex(a => name.EqualsOrdinalIgnoreCase(a.Name));
     public int IndexOf(string? localName, string? namespaceURI)
     {
         if (localName == null || namespaceURI == null)
             return -1;
 
-        return _list.FindIndex(a => localName.EqualsIgnoreCase(a.LocalName) && a.NamespaceURI != null && string.Equals(namespaceURI, a.NamespaceURI, StringComparison.Ordinal));
+        return _list.FindIndex(a => localName.EqualsOrdinalIgnoreCase(a.LocalName) && a.NamespaceURI != null && string.Equals(namespaceURI, a.NamespaceURI, StringComparison.Ordinal));
     }
 
     public bool RemoveAt(int index)
@@ -155,7 +157,7 @@ public sealed class HtmlAttributeList : IList<HtmlAttribute>, INotifyCollectionC
 
     public bool RemoveByPrefix(string? prefix, string? localName)
     {
-        var att = _list.Find(a => localName.EqualsIgnoreCase(a.LocalName) && string.Equals(prefix, a.Prefix, StringComparison.Ordinal));
+        var att = _list.Find(a => localName.EqualsOrdinalIgnoreCase(a.LocalName) && string.Equals(prefix, a.Prefix, StringComparison.Ordinal));
         if (att == null)
             return false;
 
@@ -198,7 +200,7 @@ public sealed class HtmlAttributeList : IList<HtmlAttribute>, INotifyCollectionC
 
     public HtmlAttribute? this[string? name]
     {
-        get => _list.Find(a => name.EqualsIgnoreCase(a.Name));
+        get => _list.Find(a => name.EqualsOrdinalIgnoreCase(a.Name));
         set
         {
             ArgumentNullException.ThrowIfNull(value);
@@ -219,7 +221,7 @@ public sealed class HtmlAttributeList : IList<HtmlAttribute>, INotifyCollectionC
 
     public HtmlAttribute? this[string? localName, string? namespaceURI]
     {
-        get => _list.Find(a => localName.EqualsIgnoreCase(a.LocalName) && a.NamespaceURI != null && string.Equals(namespaceURI, a.NamespaceURI, StringComparison.Ordinal));
+        get => _list.Find(a => localName.EqualsOrdinalIgnoreCase(a.LocalName) && a.NamespaceURI != null && string.Equals(namespaceURI, a.NamespaceURI, StringComparison.Ordinal));
         set
         {
             ArgumentNullException.ThrowIfNull(value);

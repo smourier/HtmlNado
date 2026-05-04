@@ -1,4 +1,6 @@
-﻿namespace HtmlNado;
+﻿using HtmlNado.Utilities;
+
+namespace HtmlNado;
 
 [DebuggerDisplay("{Name}")]
 public class HtmlElement : HtmlNode
@@ -32,7 +34,7 @@ public class HtmlElement : HtmlNode
     }
 #endif
 
-    public virtual bool IsDocumentType => Name.EqualsIgnoreCase("!doctype");
+    public virtual bool IsDocumentType => Name.EqualsOrdinalIgnoreCase("!doctype");
 
     public virtual char CloseChar
     {
@@ -149,7 +151,7 @@ public class HtmlElement : HtmlNode
         if (indent > _maxRecursion)
             return null;
 
-        if (name.EqualsIgnoreCase(Name))
+        if (name.EqualsOrdinalIgnoreCase(Name))
             return this;
 
         if (ParentNode is HtmlElement element)
@@ -337,7 +339,7 @@ public class HtmlElement : HtmlNode
     public override void WriteContentTo(XmlWriter writer)
     {
         ArgumentNullException.ThrowIfNull(writer);
-        if (Name.EqualsIgnoreCase("!doctype"))
+        if (Name.EqualsOrdinalIgnoreCase("!doctype"))
             return;
 
         if (!NoChild)

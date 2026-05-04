@@ -2,7 +2,7 @@
 
 internal static class Extensions
 {
-    public static string? Nullify(this string? text)
+    public static string? ToNull(this string? text)
     {
         if (text == null)
             return null;
@@ -14,12 +14,12 @@ internal static class Extensions
         return t.Length == 0 ? null : t;
     }
 
-    public static bool EqualsIgnoreCase(this string? thisString, string? text, bool trim = true)
+    public static bool EqualsOrdinalIgnoreCase(this string? thisString, string? text, bool trim = true)
     {
         if (trim)
         {
-            thisString = thisString.Nullify();
-            text = text.Nullify();
+            thisString = thisString.ToNull();
+            text = text.ToNull();
         }
 
         if (thisString == null)

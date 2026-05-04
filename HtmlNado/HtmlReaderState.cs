@@ -16,7 +16,7 @@ public class HtmlReaderState
         QuoteChar = reader._quoteChar;
     }
 
-    public HtmlReader Reader { get; private set; }
+    public HtmlReader Reader { get; }
     public virtual char QuoteChar { get; protected set; }
     public virtual int Offset { get; protected set; }
     public virtual int Line { get; protected set; }

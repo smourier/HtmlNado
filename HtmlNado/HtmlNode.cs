@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using HtmlNado.Utilities;
 
 namespace HtmlNado;
 
@@ -155,6 +155,24 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
     public string? Id { get => GetAttributeValue("id"); set => SetAttribute("id", value); }
     public virtual bool RaisePropertyChanged { get; set; }
     public virtual int StreamOrder { get; set; }
+
+    public IEnumerable<HtmlNode> AllChildNodes
+    {
+        get
+        {
+            if (HasChildNodes)
+            {
+                foreach (var node in ChildNodes)
+                {
+                    yield return node;
+                    foreach (var child in node.AllChildNodes)
+                    {
+                        yield return child;
+                    }
+                }
+            }
+        }
+    }
 
     public int Depth
     {
@@ -465,8 +483,8 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
             return;
         }
 
-        prefix = name[..pos].Nullify();
-        localName = name[(pos + 1)..].Nullify();
+        prefix = name[..pos].ToNull();
+        localName = name[(pos + 1)..].ToNull();
         if (prefix == null || localName == null)
         {
             prefix = string.Empty;
@@ -647,14 +665,14 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
     public string? GetNullifiedAttributeValue(string name)
     {
         ArgumentNullException.ThrowIfNull(name);
-        return Attributes[name]?.Value.Nullify();
+        return Attributes[name]?.Value.ToNull();
     }
 
     public string? GetNullifiedAttributeValue(string localName, string namespaceURI)
     {
         ArgumentNullException.ThrowIfNull(localName);
         ArgumentNullException.ThrowIfNull(namespaceURI);
-        return Attributes[localName, namespaceURI]?.Value.Nullify();
+        return Attributes[localName, namespaceURI]?.Value.ToNull();
     }
 
     public virtual void AppendChild(HtmlNode newChild)
@@ -886,12 +904,12 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         if (prefix == null)
             return null;
 
-        if (prefix.EqualsIgnoreCase(Prefix) && DeclaredNamespaceURI != null)
+        if (prefix.EqualsOrdinalIgnoreCase(Prefix) && DeclaredNamespaceURI != null)
             return DeclaredNamespaceURI;
 
         foreach (var att in Attributes)
         {
-            if (att.Prefix.EqualsIgnoreCase(XmlnsPrefix) && att.LocalName.EqualsIgnoreCase(prefix))
+            if (att.Prefix.EqualsOrdinalIgnoreCase(XmlnsPrefix) && att.LocalName.EqualsOrdinalIgnoreCase(prefix))
                 return att.Value;
         }
 
@@ -908,12 +926,12 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
 
     public virtual string? GetPrefixOfNamespace(string? namespaceURI)
     {
-        if (namespaceURI.EqualsIgnoreCase(NamespaceURI))
+        if (namespaceURI.EqualsOrdinalIgnoreCase(NamespaceURI))
             return Prefix;
 
         foreach (var att in Attributes)
         {
-            if (att.Prefix.EqualsIgnoreCase(XmlnsPrefix) && att.Value.EqualsIgnoreCase(namespaceURI))
+            if (att.Prefix.EqualsOrdinalIgnoreCase(XmlnsPrefix) && att.Value.EqualsOrdinalIgnoreCase(namespaceURI))
                 return att.LocalName;
         }
 
@@ -954,7 +972,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
 
         foreach (var att in Attributes)
         {
-            if (att.Prefix.EqualsIgnoreCase(XmlnsPrefix))
+            if (att.Prefix.EqualsOrdinalIgnoreCase(XmlnsPrefix))
             {
                 if (att.LocalName != null)
                 {
