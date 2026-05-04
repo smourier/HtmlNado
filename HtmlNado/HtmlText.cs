@@ -3,9 +3,6 @@
 [DebuggerDisplay("'{Value}'")]
 public class HtmlText : HtmlNode
 {
-    private string? _value;
-    private bool _cData;
-
     protected internal HtmlText(HtmlDocument ownerDocument)
         : base(string.Empty, "#text", string.Empty, ownerDocument)
     {
@@ -16,12 +13,12 @@ public class HtmlText : HtmlNode
 
     public virtual bool IsCData
     {
-        get => _cData;
+        get => field;
         set
         {
-            if (value != _cData)
+            if (value != field)
             {
-                _cData = value;
+                field = value;
                 OnPropertyChanged(new PropertyChangedEventArgs(nameof(IsCData)));
             }
         }
@@ -64,12 +61,12 @@ public class HtmlText : HtmlNode
 
     public override string? Value
     {
-        get => _value;
+        get => field;
         set
         {
-            if (!string.Equals(value, _value, StringComparison.Ordinal))
+            if (!string.Equals(value, field, StringComparison.Ordinal))
             {
-                _value = value;
+                field = value;
                 OnPropertyChanged(new PropertyChangedEventArgs(nameof(Value)));
             }
         }
@@ -134,7 +131,7 @@ public class HtmlText : HtmlNode
     {
         base.CopyTo(target, copyOptions);
         var text = (HtmlText)target;
-        text._cData = _cData;
-        text._value = _value;
+        text.IsCData = IsCData;
+        text.Value = Value;
     }
 }

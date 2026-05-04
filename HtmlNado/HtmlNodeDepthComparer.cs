@@ -2,9 +2,9 @@
 
 public class HtmlNodeDepthComparer : IComparer<HtmlNode>
 {
-    public ListSortDirection Direction { get; set; }
+    public virtual ListSortDirection Direction { get; set; }
 
-    public int Compare(HtmlNode? x, HtmlNode? y)
+    public virtual int Compare(HtmlNode? x, HtmlNode? y)
     {
         ArgumentNullException.ThrowIfNull(x);
         ArgumentNullException.ThrowIfNull(y);

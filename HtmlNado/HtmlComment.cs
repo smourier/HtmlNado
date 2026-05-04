@@ -3,8 +3,6 @@
 [DebuggerDisplay("'{Value}'")]
 public class HtmlComment : HtmlNode
 {
-    private string? _value;
-
     protected internal HtmlComment(HtmlDocument ownerDocument)
         : base(string.Empty, "#comment", string.Empty, ownerDocument)
     {
@@ -36,12 +34,12 @@ public class HtmlComment : HtmlNode
 
     public override string? Value
     {
-        get => _value;
+        get => field;
         set
         {
-            if (!string.Equals(value, _value, StringComparison.Ordinal))
+            if (!string.Equals(value, field, StringComparison.Ordinal))
             {
-                _value = value;
+                field = value;
                 OnPropertyChanged(new PropertyChangedEventArgs(nameof(Value)));
             }
         }
@@ -74,6 +72,6 @@ public class HtmlComment : HtmlNode
     {
         base.CopyTo(target, copyOptions);
         var comment = (HtmlComment)target;
-        comment._value = _value;
+        comment.Value = Value;
     }
 }

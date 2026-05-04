@@ -141,6 +141,7 @@ public class HtmlOptions
     public virtual bool ReaderThrowsOnEncodingMismatch { get; set; }
     public virtual bool ReaderRestartsOnEncodingDetected { get; set; }
     public virtual bool ReaderThrowsOnUnknownDetectedEncoding { get; set; }
+    public virtual bool ReaderDontDetectEncoding { get; set; }
     public virtual bool DontBuildIdDictionary { get; set; }
 
     public virtual HtmlElementWriteOptions GetElementWriteOptions(string? name)

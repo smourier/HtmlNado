@@ -2,15 +2,9 @@
 
 public class HtmlAttribute : HtmlNode
 {
-    private char _quoteChar;
-    private char _nameQuoteChar;
-    private bool _isValueDefined;
-    private bool _escapeQuoteChar;
-
     protected internal HtmlAttribute(string prefix, string localName, string? namespaceURI, HtmlDocument? ownerDocument)
         : base(prefix, localName, namespaceURI, ownerDocument)
     {
-        _escapeQuoteChar = true;
     }
 
     public HtmlElement? OwnerElement => (HtmlElement?)ParentNode;
@@ -30,25 +24,25 @@ public class HtmlAttribute : HtmlNode
 
     public virtual bool EscapeQuoteChar
     {
-        get => _escapeQuoteChar;
+        get => field;
         set
         {
-            if (value != _escapeQuoteChar)
+            if (value != field)
             {
-                _escapeQuoteChar = value;
+                field = value;
                 OnPropertyChanged(new PropertyChangedEventArgs(nameof(EscapeQuoteChar)));
             }
         }
-    }
+    } = true;
 
     public virtual bool IsValueDefined
     {
-        get => _isValueDefined;
+        get => field;
         set
         {
-            if (value != _isValueDefined)
+            if (value != field)
             {
-                _isValueDefined = value;
+                field = value;
                 OnPropertyChanged(new PropertyChangedEventArgs(nameof(IsValueDefined)));
             }
         }
@@ -56,12 +50,12 @@ public class HtmlAttribute : HtmlNode
 
     public virtual char QuoteChar
     {
-        get => _quoteChar;
+        get => field;
         set
         {
-            if (value != _quoteChar)
+            if (value != field)
             {
-                _quoteChar = value;
+                field = value;
                 OnPropertyChanged(new PropertyChangedEventArgs(nameof(QuoteChar)));
             }
         }
@@ -69,12 +63,12 @@ public class HtmlAttribute : HtmlNode
 
     public virtual char NameQuoteChar
     {
-        get => _nameQuoteChar;
+        get => field;
         set
         {
-            if (value != _nameQuoteChar)
+            if (value != field)
             {
-                _nameQuoteChar = value;
+                field = value;
                 OnPropertyChanged(new PropertyChangedEventArgs(nameof(NameQuoteChar)));
             }
         }
@@ -274,10 +268,10 @@ public class HtmlAttribute : HtmlNode
     {
         base.CopyTo(target, HtmlCloneOptions.None); // don't do deep copy
         var att = (HtmlAttribute)target;
-        att._nameQuoteChar = _nameQuoteChar;
-        att._quoteChar = _quoteChar;
-        att._isValueDefined = _isValueDefined;
-        att._escapeQuoteChar = _escapeQuoteChar;
+        att.NameQuoteChar = NameQuoteChar;
+        att.QuoteChar = QuoteChar;
+        att.IsValueDefined = IsValueDefined;
+        att.EscapeQuoteChar = EscapeQuoteChar;
     }
 
     protected virtual char GetQuoteChar() => QuoteChar;

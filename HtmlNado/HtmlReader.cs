@@ -16,12 +16,7 @@ public class HtmlReader
 
     public event EventHandler<HtmlReaderParseEventArgs>? Parsing;
 
-    public HtmlReader(TextReader reader)
-        : this(reader, null)
-    {
-    }
-
-    public HtmlReader(TextReader reader, HtmlOptions? options)
+    public HtmlReader(TextReader reader, HtmlOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(reader);
 

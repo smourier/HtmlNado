@@ -9,7 +9,7 @@ public class HtmlXPathResult : HtmlNode
         Result = result;
     }
 
-    public object? Result { get; private set; }
+    public virtual object? Result { get; protected set; }
 
     public override string? Value
     {

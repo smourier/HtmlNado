@@ -635,6 +635,9 @@ public class HtmlDocument : HtmlNode
 
     private bool DetectEncoding(HtmlReader reader, HtmlElement? element, bool firstPass)
     {
+        if (reader.Options.ReaderDontDetectEncoding)
+            return true;
+
         if (DetectedEncoding != null)
             return true;
 

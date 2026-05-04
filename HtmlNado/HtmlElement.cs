@@ -7,9 +7,6 @@ public class HtmlElement : HtmlNode
     private bool? _dontCloseIfEmpty;
     private bool? _alwaysClose;
     private bool? _noChild;
-    private bool _processingInstruction;
-    private bool _closed = true;
-    private char _closeChar = '/';
     private HtmlNodeType _nodeType;
 
     protected internal HtmlElement(string prefix, string localName, string? namespaceURI, HtmlDocument? ownerDocument)
@@ -39,23 +36,23 @@ public class HtmlElement : HtmlNode
 
     public virtual char CloseChar
     {
-        get => _closeChar;
+        get => field;
         set
         {
-            if (value != _closeChar)
+            if (value != field)
             {
-                _closeChar = value;
+                field = value;
                 OnPropertyChanged(new PropertyChangedEventArgs(nameof(CloseChar)));
             }
         }
-    }
+    } = '/';
 
     public virtual bool IsProcessingInstruction
     {
-        get => _processingInstruction;
+        get => field;
         set
         {
-            if (value != _processingInstruction)
+            if (value != field)
             {
                 if (value)
                 {
@@ -70,7 +67,7 @@ public class HtmlElement : HtmlNode
                     _nodeType = HtmlNodeType.Element;
                 }
                 ClearCaches();
-                _processingInstruction = value;
+                field = value;
                 OnPropertyChanged(new PropertyChangedEventArgs(nameof(IsProcessingInstruction)));
             }
         }
@@ -104,16 +101,16 @@ public class HtmlElement : HtmlNode
 
     public virtual bool IsClosed
     {
-        get => _closed;
+        get => field;
         set
         {
-            if (value != _closed)
+            if (value != field)
             {
-                _closed = value;
+                field = value;
                 ClearCaches();
             }
         }
-    }
+    } = true;
 
     public virtual bool IsEmpty
     {
@@ -275,7 +272,7 @@ public class HtmlElement : HtmlNode
 
             WriteContentTo(writer);
 
-            if (_closed || alwaysClose || (OwnerDocument != null && OwnerDocument.IsXhtml))
+            if (IsClosed || alwaysClose || (OwnerDocument != null && OwnerDocument.IsXhtml))
             {
                 writer.Write("</");
                 writer.Write(Name);
@@ -359,11 +356,11 @@ public class HtmlElement : HtmlNode
     {
         base.CopyTo(target, copyOptions);
         var element = (HtmlElement)target;
-        element._closed = _closed;
+        element.IsClosed = IsClosed;
         element._empty = _empty;
-        element._processingInstruction = _processingInstruction;
+        element.IsProcessingInstruction = IsProcessingInstruction;
         element._alwaysClose = _alwaysClose;
-        element._closeChar = _closeChar;
+        element.CloseChar = CloseChar;
         element._dontCloseIfEmpty = _dontCloseIfEmpty;
         element._nodeType = _nodeType;
     }

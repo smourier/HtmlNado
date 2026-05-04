@@ -2,8 +2,6 @@
 
 public class HtmlXPathElement : HtmlElement
 {
-    private string? _xPathExpression;
-
     protected internal HtmlXPathElement(string prefix, string localName, string? namespaceURI, HtmlXPathDocument? ownerDocument)
         : base(prefix, localName, namespaceURI, ownerDocument)
     {
@@ -167,7 +165,7 @@ public class HtmlXPathElement : HtmlElement
     {
         get
         {
-            if (_xPathExpression == null)
+            if (field == null)
             {
                 if (ParentNode == null)
                 {
@@ -180,18 +178,18 @@ public class HtmlXPathElement : HtmlElement
                     return name;
                 }
 
-                _xPathExpression = GetXPath(ParentNode.ChildNodes);
+                field = GetXPath(ParentNode.ChildNodes);
                 if (ParentNode is HtmlXPathElement parent)
                 {
-                    _xPathExpression = parent.XPathExpression + "/" + _xPathExpression;
+                    field = parent.XPathExpression + "/" + field;
                 }
 
                 if (ParentNode.NodeType == HtmlNodeType.Document)
                 {
-                    _xPathExpression = "/" + _xPathExpression;
+                    field = "/" + field;
                 }
             }
-            return _xPathExpression;
+            return field;
         }
     }
 }
