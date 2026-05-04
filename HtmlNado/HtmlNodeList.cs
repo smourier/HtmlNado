@@ -5,7 +5,7 @@ public sealed class HtmlNodeList : ICollection<HtmlNode>, INotifyCollectionChang
     private readonly List<HtmlNode> _list = [];
     private readonly HtmlNode _parent;
 
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
     internal HtmlNodeList(HtmlNode parent)
     {
@@ -18,24 +18,18 @@ public sealed class HtmlNodeList : ICollection<HtmlNode>, INotifyCollectionChang
         CollectionChanged?.Invoke(this, e);
     }
 
-    public HtmlNode this[string name]
+    public HtmlNode? this[string? name]
     {
         get
         {
-            ArgumentNullException.ThrowIfNull(name);
-
             return _list.Find(n => n.Name.EqualsIgnoreCase(name));
         }
     }
 
-    public HtmlNode this[string localName, string namespaceURI]
+    public HtmlNode? this[string? localName, string? namespaceURI]
     {
         get
         {
-            ArgumentNullException.ThrowIfNull(localName);
-
-            ArgumentNullException.ThrowIfNull(namespaceURI);
-
             return _list.Find(a => localName.EqualsIgnoreCase(a.LocalName) && a.NamespaceURI != null && string.Equals(namespaceURI, a.NamespaceURI, StringComparison.Ordinal));
         }
     }
@@ -48,7 +42,7 @@ public sealed class HtmlNodeList : ICollection<HtmlNode>, INotifyCollectionChang
             if (value == _list[index])
                 return;
 
-            HtmlNode oldItem = _list[index];
+            var oldItem = _list[index];
             _list[index] = value;
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldItem));
         }
@@ -57,7 +51,6 @@ public sealed class HtmlNodeList : ICollection<HtmlNode>, INotifyCollectionChang
     public void Replace(HtmlNode newChild, HtmlNode oldChild)
     {
         ArgumentNullException.ThrowIfNull(newChild);
-
         ArgumentNullException.ThrowIfNull(oldChild);
 
         if (newChild.ParentNode != null)
@@ -106,7 +99,6 @@ public sealed class HtmlNodeList : ICollection<HtmlNode>, INotifyCollectionChang
     public void Insert(int index, HtmlNode node)
     {
         ArgumentNullException.ThrowIfNull(node);
-
         if (node.ParentNode != null)
             throw new ArgumentException(null, nameof(node));
 

@@ -1,11 +1,11 @@
 ﻿namespace HtmlNado;
 
-public class HtmlConverter
+public partial class HtmlConverter
 {
     private static readonly HashSet<string> _noTextTags = new(StringComparer.OrdinalIgnoreCase);
     private static readonly HashSet<string> _paraTextTags = new(StringComparer.OrdinalIgnoreCase);
     private int _newLineCount;
-    private HtmlNode _lastNode;
+    private HtmlNode? _lastNode;
 
     static HtmlConverter()
     {
@@ -132,7 +132,7 @@ public class HtmlConverter
         return writer.ToString();
     }
 
-    private void WriterWriteDecoded(TextWriter writer, string s) => WriterWrite(writer, WebUtility.HtmlDecode(s));
+    private void WriterWriteDecoded(TextWriter writer, string? s) => WriterWrite(writer, WebUtility.HtmlDecode(s));
 
     private void WriterWriteLine(TextWriter writer)
     {
@@ -143,7 +143,7 @@ public class HtmlConverter
         _newLineCount++;
     }
 
-    private void WriterWrite(TextWriter writer, string s)
+    private void WriterWrite(TextWriter writer, string? s)
     {
         while (_newLineCount > MaxSuccessiveNewLinesCount && s != null && s.StartsWith(writer.NewLine, StringComparison.Ordinal))
         {
@@ -161,7 +161,7 @@ public class HtmlConverter
         }
     }
 
-    protected virtual bool WriteLink(string href)
+    protected virtual bool WriteLink(string? href)
     {
         if (string.IsNullOrWhiteSpace(href))
             return false;
@@ -172,7 +172,7 @@ public class HtmlConverter
             href.StartsWith("mailto://", StringComparison.OrdinalIgnoreCase);
     }
 
-    protected virtual void AppendLinkPlainText(HtmlNode node, TextWriter writer)
+    protected virtual void AppendLinkPlainText(HtmlNode? node, TextWriter writer)
     {
         if (node == null || !node.Name.EqualsIgnoreCase("a"))
             return;
@@ -183,12 +183,12 @@ public class HtmlConverter
 
         var skipSelfLinks = (Options & HtmlConverterOptions.DontSkipSelfLinks) != HtmlConverterOptions.DontSkipSelfLinks;
 
-        string lph;
+        string? lph;
         if (string.IsNullOrWhiteSpace(node.InnerText))
         {
             lph = href;
         }
-        else if (skipSelfLinks && Uri.TryCreate(href, UriKind.Absolute, out Uri uri) && (IsSameUrl(uri.ToString(), node.InnerText)))
+        else if (skipSelfLinks && Uri.TryCreate(href, UriKind.Absolute, out var uri) && (IsSameUrl(uri.ToString(), node.InnerText)))
         {
             lph = node.InnerText;
         }
@@ -201,7 +201,7 @@ public class HtmlConverter
         WriterWriteDecoded(writer, lph);
     }
 
-    protected virtual void AppendImagePlaintText(HtmlNode node, TextWriter writer)
+    protected virtual void AppendImagePlaintText(HtmlNode? node, TextWriter writer)
     {
         if (node == null || !node.Name.EqualsIgnoreCase("img"))
             return;
@@ -209,7 +209,7 @@ public class HtmlConverter
         var src = node.GetNullifiedAttributeValue("src");
         if (src != null && ImagePlaceHolder != null)
         {
-            string iph = string.Format(ImagePlaceHolder, src);
+            var iph = string.Format(ImagePlaceHolder, src);
             WriterWriteLine(writer);
             WriterWriteDecoded(writer, iph);
         }
@@ -219,16 +219,16 @@ public class HtmlConverter
     {
         if (node.NodeType == HtmlNodeType.Text)
         {
-            var trimmed = node.Value.Trim();
-            if (trimmed.Length > 0)
+            var trimmed = node.Value?.Trim();
+            if (trimmed != null && trimmed.Length > 0)
             {
                 var textToWrite =
-                        (char.IsWhiteSpace(node.Value[0]) ? " " : "") +
+                        (char.IsWhiteSpace(node.Value![0]) ? " " : "") +
                         trimmed +
-                        (char.IsWhiteSpace(node.Value[node.Value.Length - 1]) ? " " : "");
+                        (char.IsWhiteSpace(node.Value![^1]) ? " " : "");
                 WriterWriteDecoded(writer, textToWrite);
             }
-            else if (node.Value.Length > 0)
+            else if (node.Value?.Length > 0)
             {
                 WriterWriteDecoded(writer, " ");
             }
@@ -248,7 +248,7 @@ public class HtmlConverter
                     return;
 
                 var heading = AppendPlainText(node);
-                if (UnderlineHeadingsChar != '\0' && heading.IndexOfAny(new[] { '\r', '\n' }) < 0)
+                if (UnderlineHeadingsChar != '\0' && heading.IndexOfAny(['\r', '\n']) < 0)
                 {
                     WriterWriteLine(writer);
                     WriterWriteDecoded(writer, heading);
@@ -388,28 +388,14 @@ public class HtmlConverter
             case "ol":
                 var header = "\\*\\pn\\pnlvlbody\\pnindent0{\\pntxta.}";
                 var type = child.GetNullifiedAttributeValue("type");
-                switch (type)
+                type = type switch
                 {
-                    case "a":
-                        type = "\\pnlcltr";
-                        break;
-
-                    case "A":
-                        type = "\\pnucltr";
-                        break;
-
-                    case "i":
-                        type = "\\pnlcrm";
-                        break;
-
-                    case "I":
-                        type = "\\pnucrm";
-                        break;
-
-                    default:
-                        type = "\\pndec";
-                        break;
-                }
+                    "a" => "\\pnlcltr",
+                    "A" => "\\pnucltr",
+                    "i" => "\\pnlcrm",
+                    "I" => "\\pnucrm",
+                    _ => "\\pndec",
+                };
                 header += type;
                 header += "\\pnstart" + child.GetAttributeValue("start", 1);
 
@@ -451,20 +437,18 @@ public class HtmlConverter
         WriterWrite(writer, string.Format("\\{0}0 ", tag));
     }
 
-    private static string CleanRtfText(string value)
+    private static string? CleanRtfText(string? value)
     {
         if (value == null)
             return null;
 
         value = WebUtility.HtmlDecode(value);
         value = value.Replace((char)160, ' ');
-#pragma warning disable MA0009 // Add timeout parameter
-        value = Regex.Replace(value, "[ ]+", " ", RegexOptions.Multiline);
-#pragma warning restore MA0009 // Add timeout parameter
+        value = CleanRtfRegex().Replace(value, " ");
         return Utilities.Extensions.EscapeRtf(value);
     }
 
-    private static string NormalizeUrl(string url)
+    private static string? NormalizeUrl(string? url)
     {
         url = url.Nullify();
         if (url == null)
@@ -495,7 +479,6 @@ public class HtmlConverter
     protected virtual void ConvertToRichText(HtmlNode node, TextWriter writer)
     {
         ArgumentNullException.ThrowIfNull(node);
-
         ArgumentNullException.ThrowIfNull(writer);
 
         writer.NewLine = "\n";
@@ -513,10 +496,12 @@ public class HtmlConverter
     protected virtual void ConvertToMarkdown(HtmlNode node, TextWriter writer)
     {
         ArgumentNullException.ThrowIfNull(node);
-
         ArgumentNullException.ThrowIfNull(writer);
 
         // UNDONE
         AppendPlainText(node, writer);
     }
+
+    [GeneratedRegex("[ ]+", RegexOptions.Multiline)]
+    private static partial Regex CleanRtfRegex();
 }

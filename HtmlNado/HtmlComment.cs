@@ -3,7 +3,7 @@
 [DebuggerDisplay("'{Value}'")]
 public class HtmlComment : HtmlNode
 {
-    private string _value;
+    private string? _value;
 
     protected internal HtmlComment(HtmlDocument ownerDocument)
         : base(string.Empty, "#comment", string.Empty, ownerDocument)
@@ -27,7 +27,7 @@ public class HtmlComment : HtmlNode
         }
     }
 
-    public override string InnerText
+    public override string? InnerText
     {
         get => Value;
         set
@@ -40,7 +40,7 @@ public class HtmlComment : HtmlNode
         }
     }
 
-    public override string Value
+    public override string? Value
     {
         get => _value;
         set
@@ -69,7 +69,6 @@ public class HtmlComment : HtmlNode
     public override void WriteTo(XmlWriter writer)
     {
         ArgumentNullException.ThrowIfNull(writer);
-
         writer.WriteComment(Value);
     }
 

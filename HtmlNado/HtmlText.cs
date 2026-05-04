@@ -3,7 +3,7 @@
 [DebuggerDisplay("'{Value}'")]
 public class HtmlText : HtmlNode
 {
-    private string _value;
+    private string? _value;
     private bool _cData;
 
     protected internal HtmlText(HtmlDocument ownerDocument)
@@ -13,8 +13,10 @@ public class HtmlText : HtmlNode
 
     [Browsable(false)]
     public override HtmlAttributeList Attributes => base.Attributes;
+
     [Browsable(false)]
     public override HtmlNodeList ChildNodes => base.ChildNodes;
+
     public override HtmlNodeType NodeType => HtmlNodeType.Text;
     public virtual bool IsWhitespace => string.IsNullOrWhiteSpace(Value);
 
@@ -40,7 +42,7 @@ public class HtmlText : HtmlNode
         }
     }
 
-    public override string InnerText
+    public override string? InnerText
     {
         get => Value;
         set
@@ -53,7 +55,7 @@ public class HtmlText : HtmlNode
         }
     }
 
-    public override string InnerHtml
+    public override string? InnerHtml
     {
         get => Value;
         set
@@ -66,7 +68,7 @@ public class HtmlText : HtmlNode
         }
     }
 
-    public override string Value
+    public override string? Value
     {
         get => _value;
         set
@@ -117,7 +119,7 @@ public class HtmlText : HtmlNode
         }
     }
 
-    private static bool IsWhiteSpace(string value)
+    private static bool IsWhiteSpace(string? value)
     {
         if (string.IsNullOrEmpty(value))
             return false;

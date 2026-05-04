@@ -91,7 +91,7 @@ public static class CommandLine
         {
             if (arg.StartsWith('-') || arg.StartsWith('/'))
             {
-                var pos = arg.IndexOfAny(new[] { '=', ':' }, 1);
+                var pos = arg.IndexOfAny(['=', ':'], 1);
                 var argName = pos < 0 ? arg[1..] : arg[1..pos];
                 if (string.Compare(name, argName, StringComparison.OrdinalIgnoreCase) == 0)
                 {

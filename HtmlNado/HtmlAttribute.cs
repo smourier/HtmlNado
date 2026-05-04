@@ -7,7 +7,7 @@ public class HtmlAttribute : HtmlNode
     private bool _isValueDefined;
     private bool _escapeQuoteChar;
 
-    protected internal HtmlAttribute(string prefix, string localName, string namespaceURI, HtmlDocument ownerDocument)
+    protected internal HtmlAttribute(string prefix, string localName, string? namespaceURI, HtmlDocument? ownerDocument)
         : base(prefix, localName, namespaceURI, ownerDocument)
     {
         _escapeQuoteChar = true;
@@ -79,7 +79,7 @@ public class HtmlAttribute : HtmlNode
         }
     }
 
-    public HtmlElement OwnerElement => (HtmlElement)ParentNode;
+    public HtmlElement? OwnerElement => (HtmlElement?)ParentNode;
 
     public override HtmlNodeType NodeType => HtmlNodeType.Attribute;
 
@@ -138,7 +138,7 @@ public class HtmlAttribute : HtmlNode
         }
     }
 
-    public override string Value
+    public override string? Value
     {
         get => InnerText;
         set

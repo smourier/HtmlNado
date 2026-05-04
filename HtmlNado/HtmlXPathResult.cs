@@ -9,9 +9,9 @@ public class HtmlXPathResult : HtmlNode
         Result = result;
     }
 
-    public object Result { get; private set; }
+    public object? Result { get; private set; }
 
-    public override string Value
+    public override string? Value
     {
         get
         {

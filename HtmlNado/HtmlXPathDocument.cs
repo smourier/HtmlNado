@@ -91,7 +91,7 @@ public class HtmlXPathDocument : HtmlDocument
                                 var replaceName = att.LocalName[replaceToken.Length..];
                                 if (!string.IsNullOrEmpty(replaceName))
                                 {
-                                    string ns = null;
+                                    string? ns = null;
                                     var nsAtt = element.Attributes[replaceTokenNs + replaceName, HtmlTransformNamespaceUri];
                                     if (nsAtt != null)
                                     {
@@ -122,7 +122,7 @@ public class HtmlXPathDocument : HtmlDocument
                                 var removeName = att.LocalName[removeToken.Length..];
                                 if (!string.IsNullOrEmpty(removeName))
                                 {
-                                    string ns = null;
+                                    string? ns = null;
                                     var nsAtt = element.Attributes[removeTokenNs + removeName, HtmlTransformNamespaceUri];
                                     if (nsAtt != null)
                                     {

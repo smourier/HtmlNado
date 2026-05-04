@@ -22,7 +22,7 @@ public class HtmlDocumentWithCode : HtmlXPathDocument
 
     public override HtmlDocument CreateDocument() => new HtmlDocumentWithCode();
 
-    public override HtmlAttribute CreateAttribute(string prefix, string localName, string namespaceURI)
+    public override HtmlAttribute CreateAttribute(string prefix, string localName, string? namespaceURI)
     {
         ArgumentNullException.ThrowIfNull(prefix);
         ArgumentNullException.ThrowIfNull(localName);
@@ -57,7 +57,7 @@ public class HtmlDocumentWithCode : HtmlXPathDocument
                     e.CurrentNode = e.CurrentNode.ParentNode;
                 }
             }
-            else if (e.Reader.State.Value.StartsWith(startDirective, StringComparison.OrdinalIgnoreCase) && e.CurrentNode is HtmlElement element1)
+            else if (e.Reader.State.Value?.StartsWith(startDirective, StringComparison.OrdinalIgnoreCase) == true && e.CurrentNode is HtmlElement element1)
             {
                 var name = e.CurrentNode.Name[2..];
                 if (name.EndsWith(CodeEndToken.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase))
@@ -73,7 +73,7 @@ public class HtmlDocumentWithCode : HtmlXPathDocument
                 e.CurrentNode.RemoveAttribute(CodeEndToken.ToString(CultureInfo.InvariantCulture));
                 e.CurrentNode = e.CurrentNode.ParentNode;
             }
-            else if (e.Reader.State.Value.StartsWith(CodeStartToken.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase) && e.CurrentNode is HtmlElement element2)
+            else if (e.Reader.State.Value?.StartsWith(CodeStartToken.ToString(CultureInfo.CurrentCulture), StringComparison.OrdinalIgnoreCase) == true && e.CurrentNode is HtmlElement element2)
             {
                 var element = element2;
                 element.DontCloseIfEmpty = true;

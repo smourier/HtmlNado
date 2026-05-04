@@ -5,11 +5,10 @@ internal static class Extensions
     private static readonly object _void = new();
     public static Task NullTask => Task.FromResult(_void);
 
-    public static void EscapeRtf(TextWriter writer, string text) => EscapeRtf(writer, null, text);
-    public static void EscapeRtf(TextWriter writer, Encoding escapeEncoding, string text)
+    public static void EscapeRtf(TextWriter writer, string? text) => EscapeRtf(writer, null, text);
+    public static void EscapeRtf(TextWriter writer, Encoding? escapeEncoding, string? text)
     {
         ArgumentNullException.ThrowIfNull(writer);
-
         if (text == null)
             return;
 
@@ -49,7 +48,7 @@ internal static class Extensions
                 }
                 else
                 {
-                    foreach (var b in escapeEncoding.GetBytes(new char[] { c }))
+                    foreach (var b in escapeEncoding.GetBytes([c]))
                     {
                         writer.Write(b.ToString("x2", CultureInfo.InvariantCulture));
                     }
@@ -64,8 +63,7 @@ internal static class Extensions
     }
 
     private static bool IsRtfSpec(char c) => c == '{' || c == '}' || c == '\\';
-
-    public static string EscapeRtf(string text)
+    public static string? EscapeRtf(string text)
     {
         if (text == null)
             return null;
@@ -78,7 +76,6 @@ internal static class Extensions
     public static string GetValidXmlName(string text)
     {
         ArgumentNullException.ThrowIfNull(text);
-
         if (text.Length == 0)
             throw new ArgumentException(null, nameof(text));
 
@@ -122,18 +119,12 @@ internal static class Extensions
             return false;
 
         var category = CharUnicodeInfo.GetUnicodeCategory(c);
-        switch (category)
+        return category switch
         {
-            case UnicodeCategory.UppercaseLetter://Lu
-            case UnicodeCategory.LowercaseLetter://Ll
-            case UnicodeCategory.TitlecaseLetter://Lt
-            case UnicodeCategory.LetterNumber://Nl
-            case UnicodeCategory.OtherLetter://Lo
-                return true;
-
-            default:
-                return false;
-        }
+            //Lu
+            UnicodeCategory.UppercaseLetter or UnicodeCategory.LowercaseLetter or UnicodeCategory.TitlecaseLetter or UnicodeCategory.LetterNumber or UnicodeCategory.OtherLetter => true,
+            _ => false,
+        };
     }
 
     // valids are Lu, Ll, Lt, Lo, Nl, Mc, Me, Mn, Lm, or Nd
@@ -152,30 +143,17 @@ internal static class Extensions
             return false;
 
         var category = CharUnicodeInfo.GetUnicodeCategory(c);
-        switch (category)
+        return category switch
         {
-            case UnicodeCategory.UppercaseLetter://Lu
-            case UnicodeCategory.LowercaseLetter://Ll
-            case UnicodeCategory.TitlecaseLetter://Lt
-            case UnicodeCategory.LetterNumber://Nl
-            case UnicodeCategory.OtherLetter://Lo
-            case UnicodeCategory.ModifierLetter://Lm
-
-            case UnicodeCategory.NonSpacingMark://Mn
-            case UnicodeCategory.SpacingCombiningMark://Mc
-            case UnicodeCategory.EnclosingMark://Me
-
-            case UnicodeCategory.DecimalDigitNumber://Nd
-                return true;
-
-            default:
-                return false;
-        }
+            //Lu
+            UnicodeCategory.UppercaseLetter or UnicodeCategory.LowercaseLetter or UnicodeCategory.TitlecaseLetter or UnicodeCategory.LetterNumber or UnicodeCategory.OtherLetter or UnicodeCategory.ModifierLetter or UnicodeCategory.NonSpacingMark or UnicodeCategory.SpacingCombiningMark or UnicodeCategory.EnclosingMark or UnicodeCategory.DecimalDigitNumber => true,
+            _ => false,
+        };
     }
 
     // helper methods to parse content-disposition
-    public static string UnencodeUTF8(string header) => header == null ? null : Encoding.UTF8.GetString(Encoding.Default.GetBytes(header));
-    public static string GetAttributeFromHeader(string header, string name)
+    public static string? UnencodeUTF8(string? header) => header == null ? null : Encoding.UTF8.GetString(Encoding.Default.GetBytes(header));
+    public static string? GetAttributeFromHeader(string? header, string name)
     {
         int index;
         if (header == null)

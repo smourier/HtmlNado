@@ -1,6 +1,6 @@
 ﻿namespace HtmlNado;
 
-public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyCollectionChanged, IList
+public sealed class HtmlAttributeList : IList<HtmlAttribute>, INotifyCollectionChanged
 {
     private readonly List<HtmlAttribute> _list = [];
 
@@ -11,7 +11,7 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
         Parent = parent;
     }
 
-    public HtmlNode Parent { get; private set; }
+    public HtmlNode Parent { get; }
 
     private void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
     {
@@ -19,8 +19,7 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
         CollectionChanged?.Invoke(this, e);
     }
 
-    public HtmlAttribute Add(string prefix, string localName, string namespaceURI) => Add(prefix, localName, namespaceURI, null);
-    public HtmlAttribute Add(string prefix, string localName, string namespaceURI, string value)
+    public HtmlAttribute Add(string prefix, string localName, string? namespaceURI, string? value = null)
     {
         ArgumentNullException.ThrowIfNull(prefix);
         ArgumentNullException.ThrowIfNull(localName);
@@ -37,7 +36,7 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
         return att;
     }
 
-    public HtmlAttribute Add(string name, string value)
+    public HtmlAttribute Add(string name, string? value)
     {
         ArgumentNullException.ThrowIfNull(name);
 
@@ -73,10 +72,8 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, attribute));
     }
 
-    public string? GetNamespacePrefixIfDefined(string namespaceURI)
+    public string? GetNamespacePrefixIfDefined(string? namespaceURI)
     {
-        ArgumentNullException.ThrowIfNull(namespaceURI);
-
         foreach (var att in _list)
         {
             if ((string.Equals(att.Name, HtmlNode.XmlnsPrefix, StringComparison.Ordinal) ||
@@ -111,16 +108,18 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, attribute, index));
     }
 
-    public bool Contains(HtmlAttribute item) => IndexOf(item) >= 0;
+    public bool Contains(HtmlAttribute? item) => IndexOf(item) >= 0;
     public void CopyTo(HtmlAttribute[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
-    public int IndexOf(HtmlAttribute attribute)
+    public int IndexOf(HtmlAttribute? attribute)
     {
-        ArgumentNullException.ThrowIfNull(attribute);
+        if (attribute == null)
+            return -1;
+
         return _list.IndexOf(attribute);
     }
 
-    public int IndexOf(string name) => _list.FindIndex(a => name.EqualsIgnoreCase(a.Name));
-    public int IndexOf(string localName, string namespaceURI)
+    public int IndexOf(string? name) => _list.FindIndex(a => name.EqualsIgnoreCase(a.Name));
+    public int IndexOf(string? localName, string? namespaceURI)
     {
         if (localName == null || namespaceURI == null)
             return -1;
@@ -201,13 +200,9 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
         return true;
     }
 
-    public HtmlAttribute? this[string name]
+    public HtmlAttribute? this[string? name]
     {
-        get
-        {
-            ArgumentNullException.ThrowIfNull(name);
-            return _list.Find(a => name.EqualsIgnoreCase(a.Name));
-        }
+        get => _list.Find(a => name.EqualsIgnoreCase(a.Name));
         set
         {
             ArgumentNullException.ThrowIfNull(value);
@@ -228,12 +223,7 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
 
     public HtmlAttribute? this[string localName, string namespaceURI]
     {
-        get
-        {
-            ArgumentNullException.ThrowIfNull(localName);
-            ArgumentNullException.ThrowIfNull(namespaceURI);
-            return _list.Find(a => localName.EqualsIgnoreCase(a.LocalName) && a.NamespaceURI != null && string.Equals(namespaceURI, a.NamespaceURI, StringComparison.Ordinal));
-        }
+        get => _list.Find(a => localName.EqualsIgnoreCase(a.LocalName) && a.NamespaceURI != null && string.Equals(namespaceURI, a.NamespaceURI, StringComparison.Ordinal));
         set
         {
             ArgumentNullException.ThrowIfNull(value);
@@ -267,29 +257,11 @@ public sealed class HtmlAttributeList : ICollection<HtmlAttribute>, INotifyColle
     }
 
     public int Count => _list.Count;
-
-    public IEnumerator<HtmlAttribute> GetEnumerator() => _list.GetEnumerator();
-
-    int IList.Add(object? value)
-    {
-        var count = Count;
-        Add((HtmlAttribute)value);
-        return count;
-    }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     bool ICollection<HtmlAttribute>.IsReadOnly => false;
+    public IEnumerator<HtmlAttribute> GetEnumerator() => _list.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    int IList<HtmlAttribute>.IndexOf(HtmlAttribute item) => IndexOf(item);
+    void IList<HtmlAttribute>.RemoveAt(int index) => RemoveAt(index);
+    void ICollection<HtmlAttribute>.Add(HtmlAttribute item) => Add(item);
     void ICollection<HtmlAttribute>.Clear() => RemoveAll();
-    void IList.Clear() => RemoveAll();
-    bool IList.Contains(object value) => Contains((HtmlAttribute)value);
-    int IList.IndexOf(object value) => IndexOf((HtmlAttribute)value);
-    void IList.Insert(int index, object value) => Insert(index, (HtmlAttribute)value);
-    bool IList.IsFixedSize => false;
-    bool IList.IsReadOnly => false;
-    void IList.Remove(object value) => Remove((HtmlAttribute)value);
-    void IList.RemoveAt(int index) => RemoveAt(index);
-    object IList.this[int index] { get => this[index]; set => this[index] = (HtmlAttribute)value; }
-    void ICollection.CopyTo(Array array, int index) => ((ICollection)_list).CopyTo(array, index);
-    bool ICollection.IsSynchronized => ((ICollection)_list).IsSynchronized;
-    object ICollection.SyncRoot => ((ICollection)_list).SyncRoot;
 }

@@ -1,12 +1,8 @@
 ﻿namespace HtmlNado.Utilities;
 
-public class BufferedStringWriter : BufferedStreamWriter
+public class BufferedStringWriter(int bufferSize = 1)
+    : BufferedStreamWriter(new MemoryStream(), bufferSize, HtmlDocument.UTF8NoBOMEncoding, true)
 {
-    public BufferedStringWriter(int bufferSize = 1)
-        : base(new MemoryStream(), bufferSize, HtmlDocument.UTF8NoBOMEncoding, true)
-    {
-    }
-
     public override string ToString()
     {
         Flush();

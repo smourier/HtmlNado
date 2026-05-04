@@ -13,9 +13,9 @@ public class HtmlTextBlockReader
         CurrentNode = node;
     }
 
-    public HtmlNode Node { get; private set; }
-    public HtmlNode CurrentNode { get; protected set; }
-    public HtmlTextBlock Value { get; protected set; }
+    public HtmlNode Node { get; }
+    public virtual HtmlNode CurrentNode { get; protected set; }
+    public virtual HtmlTextBlock? Value { get; protected set; }
 
     public virtual bool Read()
     {

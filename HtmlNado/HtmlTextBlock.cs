@@ -1,13 +1,7 @@
 ﻿namespace HtmlNado;
 
-public class HtmlTextBlock
+public class HtmlTextBlock(HtmlNode node, HtmlTextBlockType type)
 {
-    public HtmlTextBlock(HtmlNode node, HtmlTextBlockType type)
-    {
-        Node = node;
-        BlockType = type;
-    }
-
-    public HtmlNode Node { get; protected set; }
-    public HtmlTextBlockType BlockType { get; protected set; }
+    public HtmlNode Node { get; protected set; } = node;
+    public HtmlTextBlockType BlockType { get; protected set; } = type;
 }

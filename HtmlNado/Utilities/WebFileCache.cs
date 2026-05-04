@@ -375,7 +375,7 @@ public class WebFileCache
                     {
                         fileName = null;
                     }
-                    fileName = fileName ?? "default";
+                    fileName ??= "default";
                 }
 
                 var ext = Path.GetExtension(fileName);

@@ -2,7 +2,7 @@
 
 public class HtmlAttributeWithCode : HtmlAttribute
 {
-    protected internal HtmlAttributeWithCode(string prefix, string localName, string namespaceURI, HtmlDocument ownerDocument)
+    protected internal HtmlAttributeWithCode(string prefix, string localName, string? namespaceURI, HtmlDocument? ownerDocument)
         : base(prefix, localName, namespaceURI, ownerDocument)
     {
     }

@@ -16,7 +16,8 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
 
     public const string XhtmlPrefix = "xhtml";
     public const string XhtmlNamespaceURI = "http://www.w3.org/1999/xhtml";
-    private Collection<HtmlError> _errors;
+
+    private Collection<HtmlError>? _errors;
     private HtmlNodeList _childNodes;
     private HtmlAttributeList _attributes;
     private HtmlNode? _parentNode;
@@ -41,7 +42,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         NamespaceManager.AddNamespace(XhtmlPrefix, XhtmlNamespaceURI);
     }
 
-    protected HtmlNode(string prefix, string localName, string namespaceURI, HtmlDocument? ownerDocument)
+    protected HtmlNode(string prefix, string localName, string? namespaceURI, HtmlDocument? ownerDocument)
     {
         ArgumentNullException.ThrowIfNull(prefix);
         ArgumentNullException.ThrowIfNull(localName);
@@ -93,7 +94,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         PropertyChanged?.Invoke(this, e);
     }
 
-    protected string DeclaredNamespaceURI { get; private set; }
+    protected string? DeclaredNamespaceURI { get; private set; }
 
     public virtual int ParentIndex
     {
@@ -366,7 +367,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         }
     }
 
-    internal static bool IsHtmlNs(string ns) => string.IsNullOrWhiteSpace(ns) || string.Equals(ns, XhtmlNamespaceURI, StringComparison.Ordinal);
+    internal static bool IsHtmlNs(string? ns) => string.IsNullOrWhiteSpace(ns) || string.Equals(ns, XhtmlNamespaceURI, StringComparison.Ordinal);
 
     public HtmlNode? ParentNode
     {
@@ -422,7 +423,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         }
     }
 
-    public virtual string OuterHtml
+    public virtual string? OuterHtml
     {
         get
         {
@@ -436,7 +437,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         }
     }
 
-    public virtual string InnerText
+    public virtual string? InnerText
     {
         get
         {
@@ -453,7 +454,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
             if (!string.Equals(value, _innerText, StringComparison.Ordinal))
             {
                 ClearCaches();
-                HtmlNode firstChild = FirstChild;
+                var firstChild = FirstChild;
                 if (firstChild != null && firstChild.NextSibling == null && firstChild.NodeType == HtmlNodeType.Text)
                 {
                     firstChild.Value = value;
@@ -464,7 +465,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
                         throw new ArgumentException(null, nameof(value));
 
                     RemoveAll();
-                    HtmlText text = OwnerDocument.CreateText();
+                    var text = OwnerDocument.CreateText();
                     text.Value = value;
                     ChildNodes.Add(text);
                 }
@@ -491,7 +492,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         }
     }
 
-    public virtual string InnerHtml
+    public virtual string? InnerHtml
     {
         get
         {
@@ -557,7 +558,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         get
         {
             if (HasChildNodes)
-                return ChildNodes[ChildNodes.Count - 1];
+                return ChildNodes[^1];
 
             return null;
         }
@@ -988,9 +989,10 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         }
     }
 
-    public virtual string GetNamespaceOfPrefix(string prefix)
+    public virtual string GetNamespaceOfPrefix(string? prefix)
     {
-        ArgumentNullException.ThrowIfNull(prefix);
+        if (prefix == null)
+            return string.Empty;
 
         if (prefix.EqualsIgnoreCase(Prefix) && DeclaredNamespaceURI != null)
             return DeclaredNamespaceURI;
@@ -998,7 +1000,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         foreach (var att in Attributes)
         {
             if (att.Prefix.EqualsIgnoreCase(XmlnsPrefix) && att.LocalName.EqualsIgnoreCase(prefix))
-                return att.Value;
+                return att.Value ?? string.Empty;
         }
 
         var parent = ParentNode;
@@ -1012,12 +1014,10 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         return string.Empty;
     }
 
-    public virtual string GetPrefixOfNamespace(string namespaceURI)
+    public virtual string GetPrefixOfNamespace(string? namespaceURI)
     {
-        ArgumentNullException.ThrowIfNull(namespaceURI);
-
         if (namespaceURI.EqualsIgnoreCase(NamespaceURI))
-            return Prefix;
+            return Prefix ?? string.Empty;
 
         foreach (var att in Attributes)
         {
@@ -1036,7 +1036,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
         return string.Empty;
     }
 
-    public virtual HtmlNode GetParent(Func<HtmlNode, bool> func)
+    public virtual HtmlNode? GetParent(Func<HtmlNode, bool> func)
     {
         ArgumentNullException.ThrowIfNull(func);
 
@@ -1144,7 +1144,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
     }
 
     // NOTE: the doc must have been loaded as an HtmlXPathDocument for this to be valid
-    public virtual string XPathExpression => null;
+    public virtual string? XPathExpression => null;
 
     [Conditional("DEBUG")]
     internal virtual void CheckParenting()

@@ -1,4 +1,6 @@
-﻿namespace HtmlNado.Utilities;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace HtmlNado.Utilities;
 
 // this stream remembers the last N written characters
 public class BufferedStreamWriter : StreamWriter
@@ -6,23 +8,22 @@ public class BufferedStreamWriter : StreamWriter
     private char[] _buffer;
     private int _currentIndex;
 
-    public BufferedStreamWriter(Stream stream, int bufferSize = 1, Encoding encoding = null, bool leaveOpen = false)
+    public BufferedStreamWriter(Stream stream, int bufferSize = 1, Encoding? encoding = null, bool leaveOpen = false)
         : base(stream, encoding ?? HtmlDocument.UTF8NoBOMEncoding, 0x400, leaveOpen)
     {
         Init(bufferSize);
     }
 
-    public BufferedStreamWriter(string path, int bufferSize = 1, bool append = false, Encoding encoding = null)
+    public BufferedStreamWriter(string path, int bufferSize = 1, bool append = false, Encoding? encoding = null)
         : base(path, append, encoding ?? HtmlDocument.UTF8NoBOMEncoding)
     {
         Init(bufferSize);
     }
 
+    [MemberNotNull(nameof(_buffer))]
     private void Init(int bufferSize)
     {
-        if (bufferSize < 0)
-            throw new ArgumentOutOfRangeException(nameof(bufferSize));
-
+        ArgumentOutOfRangeException.ThrowIfNegative(bufferSize);
         _buffer = new char[bufferSize];
         LastWrittenIndex = -1;
     }
@@ -31,7 +32,7 @@ public class BufferedStreamWriter : StreamWriter
     public int LastWrittenIndex { get; private set; }
     public bool IsWrittenBufferFull { get; private set; }
 
-    public string GetLastWrittenString(int maxLength = int.MaxValue)
+    public string? GetLastWrittenString(int maxLength = int.MaxValue)
     {
         var chars = GetLastWrittenChars(maxLength);
         if (chars == null)
@@ -40,10 +41,9 @@ public class BufferedStreamWriter : StreamWriter
         return new string(chars);
     }
 
-    public char[] GetLastWrittenChars(int maxLength = int.MaxValue)
+    public char[]? GetLastWrittenChars(int maxLength = int.MaxValue)
     {
-        if (maxLength <= 0)
-            throw new ArgumentOutOfRangeException(nameof(maxLength));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxLength);
 
         if (LastWrittenIndex < 0)
             return null;
@@ -59,18 +59,18 @@ public class BufferedStreamWriter : StreamWriter
                 if (maxLength > 1)
                     return _buffer;
 
-                return new char[] { _buffer[0] };
+                return [_buffer[0]];
             }
 
             if (IsWrittenBufferFull)
             {
                 if (maxLength > 1)
-                    return new char[] { _buffer[1], _buffer[0] };
+                    return [_buffer[1], _buffer[0]];
 
-                return new char[] { _buffer[1] };
+                return [_buffer[1]];
             }
 
-            return new char[] { _buffer[0] };
+            return [_buffer[0]];
         }
 
         char[] array;
@@ -115,7 +115,7 @@ public class BufferedStreamWriter : StreamWriter
         BufferWrite(buffer, index, count);
     }
 
-    public override void Write(string value)
+    public override void Write(string? value)
     {
         if (string.IsNullOrEmpty(value))
             return;
@@ -128,7 +128,7 @@ public class BufferedStreamWriter : StreamWriter
         BufferWrite(chars, 0, chars.Length);
     }
 
-    public override void Write(char[] buffer)
+    public override void Write(char[]? buffer)
     {
         if (buffer == null || buffer.Length == 0)
             return;

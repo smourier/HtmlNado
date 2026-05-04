@@ -2,12 +2,12 @@
 
 public static class Slug
 {
-    public static string Create(string text, SlugOptions options = null)
+    public static string? Create(string? text, SlugOptions? options = null)
     {
         if (text == null)
             return null;
 
-        options = options ?? new SlugOptions();
+        options ??= new SlugOptions();
         string normalized;
         if (options.EarlyTruncate && options.MaximumLength > 0 && text.Length > options.MaximumLength)
         {

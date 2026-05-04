@@ -287,7 +287,7 @@ public class HtmlReader
                     break;
 
                 case HtmlParserState.CData:
-                    if (c == '>' && Value.Length >= 2 && Value[Value.Length - 2] == ']' && Value[Value.Length - 1] == ']')
+                    if (c == '>' && Value.Length >= 2 && Value[^2] == ']' && Value[^1] == ']')
                     {
                         var rawText = Value.ToString(0, Value.Length - 2);
                         PushCurrentState(HtmlParserState.CDataText, rawText);
@@ -377,7 +377,7 @@ public class HtmlReader
                     break;
 
                 case HtmlParserState.CommentOpen:
-                    if (c == '>' && Value.Length >= 2 && Value[Value.Length - 1] == '-' && Value[Value.Length - 2] == '-')
+                    if (c == '>' && Value.Length >= 2 && Value[^1] == '-' && Value[^2] == '-')
                     {
                         PushCurrentState(HtmlParserState.CommentClose, Value.Remove(Value.Length - 2, 2).ToString());
                         ParserState = HtmlParserState.Text;

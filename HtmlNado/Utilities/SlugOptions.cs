@@ -30,7 +30,7 @@ public class SlugOptions
     public virtual IList<Tuple<short, short>> AllowedRanges { get; }
     public virtual int MaximumLength { get; set; }
     public virtual string Separator { get; set; }
-    public virtual CultureInfo Culture { get; set; }
+    public virtual CultureInfo? Culture { get; set; }
     public virtual bool CanEndWithSeparator { get; set; }
     public virtual bool EarlyTruncate { get; set; }
 

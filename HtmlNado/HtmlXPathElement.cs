@@ -2,24 +2,24 @@
 
 public class HtmlXPathElement : HtmlElement
 {
-    private string _xPathExpression;
+    private string? _xPathExpression;
 
-    protected internal HtmlXPathElement(string prefix, string localName, string namespaceURI, HtmlXPathDocument ownerDocument)
+    protected internal HtmlXPathElement(string prefix, string localName, string? namespaceURI, HtmlXPathDocument? ownerDocument)
         : base(prefix, localName, namespaceURI, ownerDocument)
     {
     }
 
-    public new HtmlXPathDocument OwnerDocument => (HtmlXPathDocument)base.OwnerDocument;
+    public new HtmlXPathDocument? OwnerDocument => (HtmlXPathDocument?)base.OwnerDocument;
 
-    private static string GetAttEscapedValue(string value)
+    private static string GetAttEscapedValue(string? value)
     {
-        if (value.IndexOf('\'') >= 0)
+        if (value?.Contains('\'') == true)
             return "=\"" + value.Replace("\"", "&quot;") + "\"";
 
         return "='" + value + "'";
     }
 
-    private string GetAttributesXPath()
+    private string? GetAttributesXPath()
     {
         if (Attributes.Count == 0)
             return null;
@@ -27,7 +27,7 @@ public class HtmlXPathElement : HtmlElement
         var sb = new StringBuilder();
         foreach (var att in Attributes)
         {
-            if (OwnerDocument.IsFiltered(att))
+            if (OwnerDocument == null || OwnerDocument.IsFiltered(att))
                 continue;
 
             if (sb.Length > 0)
@@ -47,9 +47,9 @@ public class HtmlXPathElement : HtmlElement
         return "[" + sb + "]";
     }
 
-    private string GetDiscriminantAttributeXPath()
+    private string? GetDiscriminantAttributeXPath()
     {
-        if (OwnerDocument._discriminantAttributes != null)
+        if (OwnerDocument?._discriminantAttributes != null)
         {
             foreach (var att in OwnerDocument._discriminantAttributes)
             {
@@ -73,7 +73,7 @@ public class HtmlXPathElement : HtmlElement
         return null;
     }
 
-    private string GetPrefix(string namespaceURI)
+    private string? GetPrefix(string namespaceURI)
     {
         if (string.IsNullOrEmpty(namespaceURI) || OwnerDocument == null)
             return null;
@@ -86,7 +86,7 @@ public class HtmlXPathElement : HtmlElement
         }
 
         string newPrefix;
-        int index = 0;
+        var index = 0;
         do
         {
             newPrefix = "ns" + index;
@@ -100,7 +100,7 @@ public class HtmlXPathElement : HtmlElement
         return newPrefix;
     }
 
-    private string GetXPath(HtmlNodeList parentNodes)
+    private string? GetXPath(HtmlNodeList parentNodes)
     {
         var disc = GetDiscriminantAttributeXPath();
         if (disc != null)
@@ -131,7 +131,7 @@ public class HtmlXPathElement : HtmlElement
         if (sameName.Count == 1) // this
             return name;
 
-        string byIndex = null;
+        string? byIndex = null;
         var sameAtts = new List<HtmlElement>();
         for (var i = 0; i < sameName.Count; i++)
         {
@@ -163,7 +163,7 @@ public class HtmlXPathElement : HtmlElement
         return byIndex;
     }
 
-    public override string XPathExpression
+    public override string? XPathExpression
     {
         get
         {

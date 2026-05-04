@@ -1,14 +1,8 @@
 ﻿namespace HtmlNado;
 
-public class HtmlReaderWithCode : HtmlReader
+public class HtmlReaderWithCode(HtmlDocumentWithCode document, TextReader reader, HtmlOptions options) : HtmlReader(reader, options)
 {
-    public HtmlReaderWithCode(HtmlDocumentWithCode document, TextReader reader, HtmlOptions options)
-        : base(reader, options)
-    {
-        Document = document;
-    }
-
-    public HtmlDocumentWithCode Document { get; private set; }
+    public HtmlDocumentWithCode Document { get; private set; } = document;
     protected bool IsInCode { get; set; }
 
     protected virtual void HandleEof(HtmlReaderParseEventArgs e)

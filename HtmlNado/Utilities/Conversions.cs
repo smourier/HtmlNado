@@ -2,7 +2,7 @@
 
 public static class Conversions
 {
-    private static readonly char[] _enumSeparators = new char[] { ',', ';', '+', '|', ' ' };
+    private static readonly char[] _enumSeparators = [',', ';', '+', '|', ' '];
 
     public static string GetAllMessages(this Exception exception, string separator)
     {
@@ -935,24 +935,12 @@ public static class Conversions
         ArgumentNullException.ThrowIfNull(value);
 
         var typeCode = Convert.GetTypeCode(value);
-        switch (typeCode)
+        return typeCode switch
         {
-            case TypeCode.SByte:
-            case TypeCode.Int16:
-            case TypeCode.Int32:
-            case TypeCode.Int64:
-                return (ulong)Convert.ToInt64(value, CultureInfo.InvariantCulture);
-
-            case TypeCode.Byte:
-            case TypeCode.UInt16:
-            case TypeCode.UInt32:
-            case TypeCode.UInt64:
-                return Convert.ToUInt64(value, CultureInfo.InvariantCulture);
-
-            case TypeCode.String:
-            default:
-                return ChangeType<ulong>(value, 0, CultureInfo.InvariantCulture);
-        }
+            TypeCode.SByte or TypeCode.Int16 or TypeCode.Int32 or TypeCode.Int64 => (ulong)Convert.ToInt64(value, CultureInfo.InvariantCulture),
+            TypeCode.Byte or TypeCode.UInt16 or TypeCode.UInt32 or TypeCode.UInt64 => Convert.ToUInt64(value, CultureInfo.InvariantCulture),
+            _ => ChangeType<ulong>(value, 0, CultureInfo.InvariantCulture),
+        };
     }
 
     private static bool StringToEnum(Type type, Type underlyingType, string[] names, Array values, string input, out object value)
@@ -1140,21 +1128,11 @@ public static class Conversions
                 return false;
             }
 
-            ulong tokenUl;
-            switch (Convert.GetTypeCode(tokenValue))
+            var tokenUl = Convert.GetTypeCode(tokenValue) switch
             {
-                case TypeCode.Int16:
-                case TypeCode.Int32:
-                case TypeCode.Int64:
-                case TypeCode.SByte:
-                    tokenUl = (ulong)Convert.ToInt64(tokenValue, CultureInfo.InvariantCulture);
-                    break;
-
-                default:
-                    tokenUl = Convert.ToUInt64(tokenValue, CultureInfo.InvariantCulture);
-                    break;
-            }
-
+                TypeCode.Int16 or TypeCode.Int32 or TypeCode.Int64 or TypeCode.SByte => (ulong)Convert.ToInt64(tokenValue, CultureInfo.InvariantCulture),
+                _ => Convert.ToUInt64(tokenValue, CultureInfo.InvariantCulture),
+            };
             ul |= tokenUl;
         }
         value = Enum.ToObject(type, ul);

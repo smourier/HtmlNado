@@ -23,18 +23,18 @@ public class HtmlDocument : HtmlNode
     {
     }
 
-    public virtual Encoding StreamEncoding { get; private set; }
-    public virtual Encoding DetectedEncoding { get; private set; }
+    public virtual Encoding StreamEncoding { get; protected set; }
+    public virtual Encoding DetectedEncoding { get; protected set; }
     public virtual Uri BaseAddress { get; set; }
-    public virtual bool ReaderWasRestarted { get; private set; }
-    public virtual HtmlElement? DocumentType { get; private set; }
-    public virtual HtmlElement? HtmlElement { get; private set; }
-    public virtual HtmlElement? BodyElement { get; private set; }
-    public virtual HtmlElement? HeadElement { get; private set; }
+    public virtual bool ReaderWasRestarted { get; protected set; }
+    public virtual HtmlElement? DocumentType { get; protected set; }
+    public virtual HtmlElement? HtmlElement { get; protected set; }
+    public virtual HtmlElement? BodyElement { get; protected set; }
+    public virtual HtmlElement? HeadElement { get; protected set; }
 
-    internal static T ChangeType<T>(object value, T defaultValue) => Conversions.ChangeType(value, defaultValue);
+    internal static T ChangeType<T>(object? value, T defaultValue) => Conversions.ChangeType(value, defaultValue);
 
-    internal static void RemoveIntrinsicElement(HtmlDocument doc, HtmlElement element)
+    internal static void RemoveIntrinsicElement(HtmlDocument? doc, HtmlElement? element)
     {
         if (doc == null || element == null)
             return;
@@ -106,7 +106,7 @@ public class HtmlDocument : HtmlNode
         }
     }
 
-    public virtual HtmlElement BaseElement
+    public virtual HtmlElement? BaseElement
     {
         get
         {
@@ -139,7 +139,6 @@ public class HtmlDocument : HtmlNode
     public string MakeAbsoluteAddress(string url)
     {
         ArgumentNullException.ThrowIfNull(url);
-
         return MakeAbsoluteAddress(new Uri(url, UriKind.RelativeOrAbsolute)).ToString();
     }
 
@@ -447,7 +446,7 @@ public class HtmlDocument : HtmlNode
     {
         get
         {
-            _nodesById = _nodesById ?? new Dictionary<string, HtmlNode>(StringComparer.OrdinalIgnoreCase);
+            _nodesById ??= new Dictionary<string, HtmlNode>(StringComparer.OrdinalIgnoreCase);
             return _nodesById;
         }
     }
@@ -463,7 +462,7 @@ public class HtmlDocument : HtmlNode
     }
 
     internal void ClearId(HtmlNode node) => ClearId(node.Id);
-    protected virtual internal bool ClearId(string id)
+    protected virtual internal bool ClearId(string? id)
     {
         if (id == null)
             return false;
@@ -471,9 +470,12 @@ public class HtmlDocument : HtmlNode
         return Ids.Remove(id);
     }
 
-    internal void SetNodeById(HtmlNode node)
+    internal void SetNodeById(HtmlNode? node)
     {
-        var id = node?.Id;
+        if (node == null)
+            return;
+
+        var id = node.Id;
         if (id == null)
             return;
 
@@ -483,7 +485,6 @@ public class HtmlDocument : HtmlNode
     protected virtual void SetNodeById(string id, HtmlNode node)
     {
         ArgumentNullException.ThrowIfNull(id);
-
         ArgumentNullException.ThrowIfNull(node);
 
         if (Options.DontBuildIdDictionary)
@@ -492,8 +493,8 @@ public class HtmlDocument : HtmlNode
         Ids[id] = node;
     }
 
-    public HtmlElement GetElementById(string id) => GetNodeById(id) as HtmlElement;
-    public virtual HtmlNode GetNodeById(string id)
+    public HtmlElement? GetElementById(string id) => GetNodeById(id) as HtmlElement;
+    public virtual HtmlNode? GetNodeById(string id)
     {
         ArgumentNullException.ThrowIfNull(id);
 
@@ -501,50 +502,40 @@ public class HtmlDocument : HtmlNode
         return node;
     }
 
-    public virtual void AddNamespace(string prefix, string uri)
+    public virtual void AddNamespace(string? prefix, string? uri)
     {
-        if (prefix == null)
-        {
-            _declaredPrefixes?.Remove(prefix);
-        }
-        else
+        if (prefix != null)
         {
             ArgumentNullException.ThrowIfNull(uri);
-
             _declaredPrefixes ??= new Dictionary<string, string>(StringComparer.Ordinal);
             _declaredPrefixes[prefix] = uri;
         }
 
-        if (uri == null)
-        {
-            _declaredNamespaces?.Remove(uri);
-        }
-        else
+        if (uri != null)
         {
             ArgumentNullException.ThrowIfNull(prefix);
-
             _declaredNamespaces ??= new Dictionary<string, string>(StringComparer.Ordinal);
             _declaredNamespaces[uri] = prefix;
         }
     }
 
-    public override string GetNamespaceOfPrefix(string prefix)
+    public override string GetNamespaceOfPrefix(string? prefix)
     {
-        if (_declaredPrefixes == null)
+        if (_declaredPrefixes == null || prefix == null)
             return string.Empty;
 
-        if (_declaredPrefixes.TryGetValue(prefix, out string namespaceURI))
+        if (_declaredPrefixes.TryGetValue(prefix, out var namespaceURI))
             return namespaceURI;
 
         return string.Empty;
     }
 
-    public override string GetPrefixOfNamespace(string namespaceURI)
+    public override string GetPrefixOfNamespace(string? namespaceURI)
     {
-        if (_declaredNamespaces == null)
+        if (_declaredNamespaces == null || namespaceURI == null)
             return string.Empty;
 
-        if (_declaredNamespaces.TryGetValue(namespaceURI, out string prefix))
+        if (_declaredNamespaces.TryGetValue(namespaceURI, out var prefix))
             return prefix;
 
         return string.Empty;
@@ -594,40 +585,36 @@ public class HtmlDocument : HtmlNode
 
     private HtmlAttribute CreateAttribute(string name)
     {
-        ParseName(name, out string prefix, out string localName);
+        ParseName(name, out var prefix, out var localName);
         return CreateAttribute(prefix, localName, null);
     }
 
-    public virtual HtmlAttribute CreateAttribute(string prefix, string localName, string namespaceURI)
+    public virtual HtmlAttribute CreateAttribute(string prefix, string localName, string? namespaceURI)
     {
         ArgumentNullException.ThrowIfNull(prefix);
-
-        if (prefix.IndexOf(':') >= 0)
-            throw new ArgumentException(null, nameof(prefix));
-
         ArgumentNullException.ThrowIfNull(localName);
+        if (prefix.Contains(':'))
+            throw new ArgumentException(null, nameof(prefix));
 
         return new HtmlAttribute(prefix, localName, namespaceURI, this);
     }
 
     public virtual HtmlText CreateText() => new(this);
-
     public HtmlElement CreateElement(string name)
     {
         ArgumentNullException.ThrowIfNull(name);
 
-        ParseName(name, out string prefix, out string localName);
+        ParseName(name, out var prefix, out var localName);
         return CreateElement(prefix, localName, null);
     }
 
-    public virtual HtmlElement CreateElement(string prefix, string localName, string namespaceURI)
+    public virtual HtmlElement CreateElement(string prefix, string localName, string? namespaceURI)
     {
         ArgumentNullException.ThrowIfNull(prefix);
-
-        if (prefix.IndexOf(':') >= 0)
-            throw new ArgumentException(null, nameof(prefix));
-
         ArgumentNullException.ThrowIfNull(localName);
+
+        if (prefix.Contains(':'))
+            throw new ArgumentException(null, nameof(prefix));
 
         return new HtmlElement(prefix, localName, namespaceURI, this);
     }
@@ -1039,7 +1026,7 @@ public class HtmlDocument : HtmlNode
         WriteTo(writer);
     }
 
-    public static TextWriter CreateStringWriter(HtmlDocument document, IFormatProvider provider = null)
+    public static TextWriter CreateStringWriter(HtmlDocument? document, IFormatProvider? provider = null)
     {
         if (document != null)
         {
@@ -1054,16 +1041,18 @@ public class HtmlDocument : HtmlNode
         return new StringWriter(provider);
     }
 
-    protected virtual TextWriter CreateStringWriter(IFormatProvider provider = null) => provider != null ? new StringWriter(provider) : new StringWriter();
-    protected virtual StreamWriter CreateStreamWriter(string filePath, bool append = false, Encoding encoding = null)
+    protected virtual TextWriter CreateStringWriter(IFormatProvider? provider = null) => provider != null ? new StringWriter(provider) : new StringWriter();
+    protected virtual StreamWriter CreateStreamWriter(string filePath, bool append = false, Encoding? encoding = null)
     {
+        ArgumentNullException.ThrowIfNull(filePath);
         var stream = new FileStream(filePath, append ? FileMode.Append : FileMode.Create, FileAccess.Write, FileShare.Read);
         return CreateStreamWriter(stream, encoding);
     }
 
-    protected virtual StreamWriter CreateStreamWriter(Stream stream, Encoding encoding = null)
+    protected virtual StreamWriter CreateStreamWriter(Stream stream, Encoding? encoding = null)
     {
-        encoding = encoding ?? UTF8NoBOMEncoding;
+        ArgumentNullException.ThrowIfNull(stream);
+        encoding ??= UTF8NoBOMEncoding;
         return new StreamWriter(stream, encoding);
     }
 
@@ -1128,7 +1117,6 @@ public class HtmlDocument : HtmlNode
     public virtual void Save(Stream outStream, Encoding encoding)
     {
         ArgumentNullException.ThrowIfNull(outStream);
-
         using var writer = CreateStreamWriter(outStream, encoding);
         Save(writer);
     }
@@ -1136,14 +1124,12 @@ public class HtmlDocument : HtmlNode
     public override void WriteTo(TextWriter writer)
     {
         ArgumentNullException.ThrowIfNull(writer);
-
         WriteContentTo(writer);
     }
 
     public override void WriteContentTo(TextWriter writer)
     {
         ArgumentNullException.ThrowIfNull(writer);
-
         foreach (var node in ChildNodes)
         {
             node.WriteTo(writer);
@@ -1153,7 +1139,6 @@ public class HtmlDocument : HtmlNode
     public override void WriteTo(XmlWriter writer)
     {
         ArgumentNullException.ThrowIfNull(writer);
-
         WriteContentTo(writer);
     }
 
@@ -1280,7 +1265,6 @@ public class HtmlDocument : HtmlNode
     public virtual HtmlNode ImportNode(HtmlNode node, HtmlCloneOptions cloneOptions)
     {
         ArgumentNullException.ThrowIfNull(node);
-
         return node.Clone(cloneOptions);
     }
 

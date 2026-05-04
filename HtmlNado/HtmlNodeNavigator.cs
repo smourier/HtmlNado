@@ -4,11 +4,11 @@ namespace HtmlNado;
 public class HtmlNodeNavigator : XPathNavigator
 {
     private readonly NameTable _nameTable = new();
-    private HtmlNode _currentNode;
-    private readonly HtmlNode _rootNode;
+    private readonly HtmlNode? _rootNode;
+    private HtmlNode? _currentNode;
 
     [Conditional("HTML_XPATH_TRACE")]
-    private void Trace(object value, [CallerMemberName] string methodName = null)
+    private void Trace(object? value, [CallerMemberName] string? methodName = null)
     {
 #if HTML_XPATH_TRACE
         if (!EnableTrace)
@@ -22,10 +22,8 @@ public class HtmlNodeNavigator : XPathNavigator
     internal static bool EnableTrace { get; set; }
 #endif
 
-    public HtmlNodeNavigator(HtmlDocument document, HtmlNode currentNode, HtmlNodeNavigatorOptions options)
+    public HtmlNodeNavigator(HtmlDocument? document, HtmlNode currentNode, HtmlNodeNavigatorOptions options)
     {
-        // document can be null
-
         ArgumentNullException.ThrowIfNull(currentNode);
 
         Document = document;
@@ -49,9 +47,9 @@ public class HtmlNodeNavigator : XPathNavigator
         _rootNode = other._rootNode;
     }
 
-    public override object UnderlyingObject => CurrentNode;
+    public override object? UnderlyingObject => CurrentNode;
 
-    public virtual HtmlNode CurrentNode
+    public virtual HtmlNode? CurrentNode
     {
         get => _currentNode;
         set
@@ -64,13 +62,13 @@ public class HtmlNodeNavigator : XPathNavigator
         }
     }
 
-    public virtual HtmlNodeNavigatorOptions Options { get; private set; }
-    public HtmlDocument Document { get; private set; }
-    public HtmlNode BaseNode { get; private set; }
+    public virtual HtmlNodeNavigatorOptions Options { get; }
+    public HtmlDocument? Document { get; }
+    public HtmlNode BaseNode { get; }
 
     private string GetOrAdd(string array)
     {
-        string s = _nameTable.Get(array);
+        var s = _nameTable.Get(array);
         return s ?? _nameTable.Add(array);
     }
 
@@ -84,11 +82,11 @@ public class HtmlNodeNavigator : XPathNavigator
         {
             var current = CurrentNode;
             if (current == null)
-                return null;
+                return string.Empty;
 
             return current.OuterXml;
         }
-        set => base.OuterXml = value;
+        set => base.OuterXml = value ?? string.Empty;
     }
 
     public override bool IsEmptyElement
@@ -140,15 +138,15 @@ public class HtmlNodeNavigator : XPathNavigator
 
     public override bool MoveToFirstChild()
     {
-        Trace("ChildNodes.HasChildNodes:" + CurrentNode.HasChildNodes);
-        if (!CurrentNode.HasChildNodes)
+        Trace("ChildNodes.HasChildNodes:" + CurrentNode?.HasChildNodes);
+        if (CurrentNode == null || !CurrentNode.HasChildNodes)
             return false;
 
         CurrentNode = CurrentNode.ChildNodes[0];
         return true;
     }
 
-    private static HtmlAttribute MoveToFirstNamespaceLocal(HtmlAttributeList attributes)
+    private static HtmlAttribute? MoveToFirstNamespaceLocal(HtmlAttributeList? attributes)
     {
         if (attributes == null)
             return null;
@@ -161,7 +159,7 @@ public class HtmlNodeNavigator : XPathNavigator
         return null;
     }
 
-    private static HtmlAttribute MoveToFirstNamespaceGlobal(HtmlNode rootNode, ref HtmlAttributeList attributes)
+    private static HtmlAttribute? MoveToFirstNamespaceGlobal(HtmlNode? rootNode, ref HtmlAttributeList attributes)
     {
         var att = MoveToFirstNamespaceLocal(attributes);
         if (att != null)
@@ -194,8 +192,8 @@ public class HtmlNodeNavigator : XPathNavigator
         if (CurrentNode is not HtmlElement element)
             return false;
 
-        HtmlAttribute att = null;
-        HtmlAttributeList attributes = null;
+        HtmlAttribute? att = null;
+        HtmlAttributeList? attributes = null;
         switch (scope)
         {
             case XPathNamespaceScope.Local:
@@ -250,9 +248,9 @@ public class HtmlNodeNavigator : XPathNavigator
         return true;
     }
 
-    private static HtmlAttribute MoveToNextNamespaceLocal(HtmlAttribute att)
+    private static HtmlAttribute? MoveToNextNamespaceLocal(HtmlAttribute? att)
     {
-        att = att.NextSibling;
+        att = att?.NextSibling;
         while (att != null)
         {
             if (att.IsNamespace)
@@ -263,7 +261,7 @@ public class HtmlNodeNavigator : XPathNavigator
         return null;
     }
 
-    private static HtmlAttribute MoveToNextNamespaceGlobal(HtmlNode rootNode, ref HtmlAttributeList attributes, HtmlAttribute att)
+    private static HtmlAttribute? MoveToNextNamespaceGlobal(HtmlNode? rootNode, ref HtmlAttributeList? attributes, HtmlAttribute? att)
     {
         var next = MoveToNextNamespaceLocal(att);
         if (next != null)
@@ -295,8 +293,8 @@ public class HtmlNodeNavigator : XPathNavigator
         if (CurrentNode is not HtmlAttribute attribute || !attribute.IsNamespace)
             return false;
 
-        HtmlAttribute att;
-        var attributes = attribute.ParentNode.HasAttributes ? attribute.ParentNode.Attributes : null;
+        HtmlAttribute? att;
+        var attributes = attribute.ParentNode?.HasAttributes == true ? attribute.ParentNode.Attributes : null;
         switch (scope)
         {
             case XPathNamespaceScope.Local:
@@ -349,7 +347,7 @@ public class HtmlNodeNavigator : XPathNavigator
 
     public override bool MoveToNext()
     {
-        var node = CurrentNode.NextSibling;
+        var node = CurrentNode?.NextSibling;
         Trace("node:" + node);
         if (node == null)
             return false;
@@ -376,8 +374,8 @@ public class HtmlNodeNavigator : XPathNavigator
 
     public override bool MoveToParent()
     {
-        Trace("ParentNode:" + CurrentNode.ParentNode);
-        if (CurrentNode.ParentNode == null)
+        Trace("ParentNode:" + CurrentNode?.ParentNode);
+        if (CurrentNode?.ParentNode == null)
             return false;
 
         if (_rootNode != null && CurrentNode.ParentNode == _rootNode)
@@ -392,7 +390,7 @@ public class HtmlNodeNavigator : XPathNavigator
 
     public override bool MoveToPrevious()
     {
-        var node = CurrentNode.PreviousSibling;
+        var node = CurrentNode?.PreviousSibling;
         Trace("PreviousSibling:" + node);
         if (node == null)
             return false;
@@ -418,7 +416,7 @@ public class HtmlNodeNavigator : XPathNavigator
     {
         get
         {
-            var name = CurrentNode.LocalName;
+            var name = CurrentNode?.LocalName;
             Trace("=" + name);
             if (name != null)
             {
@@ -437,7 +435,7 @@ public class HtmlNodeNavigator : XPathNavigator
     {
         get
         {
-            var name = CurrentNode.Name;
+            var name = CurrentNode?.Name;
             Trace("=" + name);
             if (name != null)
             {
@@ -458,8 +456,8 @@ public class HtmlNodeNavigator : XPathNavigator
     {
         get
         {
-            var ns = CurrentNode.NamespaceURI;
-            if (Document != null && Document.Options.EmptyNamespacesForXPath.Contains(ns))
+            var ns = CurrentNode?.NamespaceURI;
+            if (Document != null && ns != null && Document.Options.EmptyNamespacesForXPath.Contains(ns))
                 return string.Empty;
 
             Debug.Assert(ns != null);
@@ -478,38 +476,21 @@ public class HtmlNodeNavigator : XPathNavigator
     {
         get
         {
-            XPathNodeType nt;
-            switch (CurrentNode.NodeType)
+            if (CurrentNode == null)
+                return XPathNodeType.Text;
+
+            var nt = CurrentNode.NodeType switch
             {
-                case HtmlNodeType.Attribute:
-                    nt = XPathNodeType.Attribute;
-                    break;
-
-                case HtmlNodeType.Comment:
-                    nt = XPathNodeType.Comment;
-                    break;
-
-                case HtmlNodeType.Document:
-                    nt = XPathNodeType.Root;
-                    break;
-
-                case HtmlNodeType.DocumentType:
-                case HtmlNodeType.Element:
-                    //case HtmlNodeType.EndElement:
-                    nt = XPathNodeType.Element;
-                    break;
-
-                case HtmlNodeType.ProcessingInstruction:
-                    nt = XPathNodeType.ProcessingInstruction;
-                    break;
-
+                HtmlNodeType.Attribute => XPathNodeType.Attribute,
+                HtmlNodeType.Comment => XPathNodeType.Comment,
+                HtmlNodeType.Document => XPathNodeType.Root,
+                HtmlNodeType.DocumentType or HtmlNodeType.Element => XPathNodeType.Element,//case HtmlNodeType.EndElement:
+                HtmlNodeType.ProcessingInstruction => XPathNodeType.ProcessingInstruction,
                 //case HtmlNodeType.None:
                 //case CssNodeType.Text:
                 //case HtmlNodeType.Text:
-                default:
-                    nt = XPathNodeType.Text;
-                    break;
-            }
+                _ => XPathNodeType.Text,
+            };
             Trace("=" + nt);
             return nt;
         }
@@ -519,14 +500,14 @@ public class HtmlNodeNavigator : XPathNavigator
     {
         get
         {
-            Debug.Assert(CurrentNode.Prefix != null);
-            var prefix = CurrentNode.Prefix;
+            Debug.Assert(CurrentNode?.Prefix != null);
+            var prefix = CurrentNode?.Prefix;
             Trace("=" + prefix);
             if ((Options & HtmlNodeNavigatorOptions.UppercasedPrefixes) == HtmlNodeNavigatorOptions.UppercasedPrefixes)
-                return prefix.ToUpper(CultureInfo.CurrentCulture);
+                return prefix?.ToUpper(CultureInfo.CurrentCulture) ?? string.Empty;
 
             if ((Options & HtmlNodeNavigatorOptions.LowercasedPrefixes) == HtmlNodeNavigatorOptions.LowercasedPrefixes)
-                return prefix.ToLower(CultureInfo.CurrentCulture);
+                return prefix?.ToLower(CultureInfo.CurrentCulture) ?? string.Empty;
 
             return prefix ?? string.Empty;
         }
@@ -536,19 +517,19 @@ public class HtmlNodeNavigator : XPathNavigator
     {
         get
         {
-            Trace("=" + CurrentNode.Value);
+            Trace("=" + CurrentNode?.Value);
             if (CurrentNode is HtmlElement element)
             {
                 if ((Options & HtmlNodeNavigatorOptions.UppercasedValues) == HtmlNodeNavigatorOptions.UppercasedValues)
-                    return element.InnerText.ToUpper(CultureInfo.CurrentCulture);
+                    return element.InnerText?.ToUpper(CultureInfo.CurrentCulture) ?? string.Empty;
 
                 if ((Options & HtmlNodeNavigatorOptions.LowercasedValues) == HtmlNodeNavigatorOptions.LowercasedValues)
-                    return element.InnerText.ToLower(CultureInfo.CurrentCulture);
+                    return element.InnerText?.ToLower(CultureInfo.CurrentCulture) ?? string.Empty;
 
-                return element.InnerText;
+                return element.InnerText ?? string.Empty;
             }
 
-            string value = CurrentNode.Value;
+            var value = CurrentNode?.Value;
             if (value != null)
             {
                 if ((Options & HtmlNodeNavigatorOptions.UppercasedValues) == HtmlNodeNavigatorOptions.UppercasedValues)
@@ -558,7 +539,7 @@ public class HtmlNodeNavigator : XPathNavigator
                     return value.ToLower(CultureInfo.CurrentCulture);
             }
 
-            return value;
+            return value ?? string.Empty;
         }
     }
 }

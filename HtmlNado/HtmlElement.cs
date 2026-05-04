@@ -12,7 +12,7 @@ public class HtmlElement : HtmlNode
     private char _closeChar = '/';
     private HtmlNodeType _nodeType;
 
-    protected internal HtmlElement(string prefix, string localName, string namespaceURI, HtmlDocument ownerDocument)
+    protected internal HtmlElement(string prefix, string localName, string? namespaceURI, HtmlDocument? ownerDocument)
         : base(prefix, localName, namespaceURI, ownerDocument)
     {
         _nodeType = IsDocumentType ? HtmlNodeType.DocumentType : HtmlNodeType.Element;

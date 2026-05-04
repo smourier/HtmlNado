@@ -4,10 +4,9 @@ public class HtmlNodeDepthComparer : IComparer<HtmlNode>
 {
     public ListSortDirection Direction { get; set; }
 
-    public int Compare(HtmlNode x, HtmlNode y)
+    public int Compare(HtmlNode? x, HtmlNode? y)
     {
         ArgumentNullException.ThrowIfNull(x);
-
         ArgumentNullException.ThrowIfNull(y);
 
         if (ReferenceEquals(x, y))

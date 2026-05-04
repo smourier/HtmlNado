@@ -37,7 +37,7 @@ public class HtmlReaderState
         }
     }
 
-    public virtual string Value
+    public virtual string? Value
     {
         get
         {
