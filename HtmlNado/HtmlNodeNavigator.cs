@@ -95,10 +95,10 @@ public class HtmlNodeNavigator : XPathNavigator
             Trace("=" + name);
             if (name != null)
             {
-                if ((Options & HtmlNodeNavigatorOptions.UppercasedNames) == HtmlNodeNavigatorOptions.UppercasedNames)
+                if (Options.HasFlag(HtmlNodeNavigatorOptions.UppercasedNames))
                     return name.ToUpper(CultureInfo.CurrentCulture);
 
-                if ((Options & HtmlNodeNavigatorOptions.LowercasedNames) == HtmlNodeNavigatorOptions.LowercasedNames)
+                if (Options.HasFlag(HtmlNodeNavigatorOptions.LowercasedNames))
                     return name.ToLower(CultureInfo.CurrentCulture);
             }
 
@@ -114,10 +114,10 @@ public class HtmlNodeNavigator : XPathNavigator
             Trace("=" + name);
             if (name != null)
             {
-                if ((Options & HtmlNodeNavigatorOptions.UppercasedNames) == HtmlNodeNavigatorOptions.UppercasedNames)
+                if (Options.HasFlag(HtmlNodeNavigatorOptions.UppercasedNames))
                     return name.ToUpper(CultureInfo.CurrentCulture);
 
-                if ((Options & HtmlNodeNavigatorOptions.LowercasedNames) == HtmlNodeNavigatorOptions.LowercasedNames)
+                if (Options.HasFlag(HtmlNodeNavigatorOptions.LowercasedNames))
                     return name.ToLower(CultureInfo.CurrentCulture);
             }
 
@@ -135,12 +135,11 @@ public class HtmlNodeNavigator : XPathNavigator
             if (Document != null && ns != null && Document.Options.EmptyNamespacesForXPath.Contains(ns))
                 return string.Empty;
 
-            Debug.Assert(ns != null);
-            if ((Options & HtmlNodeNavigatorOptions.UppercasedNamespaceURIs) == HtmlNodeNavigatorOptions.UppercasedNamespaceURIs)
-                return ns.ToUpper(CultureInfo.CurrentCulture);
+            if (Options.HasFlag(HtmlNodeNavigatorOptions.UppercasedNamespaceURIs))
+                return ns?.ToUpper(CultureInfo.CurrentCulture) ?? string.Empty;
 
-            if ((Options & HtmlNodeNavigatorOptions.LowercasedNamespaceURIs) == HtmlNodeNavigatorOptions.LowercasedNamespaceURIs)
-                return ns.ToLower(CultureInfo.CurrentCulture);
+            if (Options.HasFlag(HtmlNodeNavigatorOptions.LowercasedNamespaceURIs))
+                return ns?.ToLower(CultureInfo.CurrentCulture) ?? string.Empty;
 
             Trace("=" + ns);
             return ns ?? string.Empty;
@@ -175,13 +174,12 @@ public class HtmlNodeNavigator : XPathNavigator
     {
         get
         {
-            Debug.Assert(CurrentNode?.Prefix != null);
             var prefix = CurrentNode?.Prefix;
             Trace("=" + prefix);
-            if ((Options & HtmlNodeNavigatorOptions.UppercasedPrefixes) == HtmlNodeNavigatorOptions.UppercasedPrefixes)
+            if (Options.HasFlag(HtmlNodeNavigatorOptions.UppercasedPrefixes))
                 return prefix?.ToUpper(CultureInfo.CurrentCulture) ?? string.Empty;
 
-            if ((Options & HtmlNodeNavigatorOptions.LowercasedPrefixes) == HtmlNodeNavigatorOptions.LowercasedPrefixes)
+            if (Options.HasFlag(HtmlNodeNavigatorOptions.LowercasedPrefixes))
                 return prefix?.ToLower(CultureInfo.CurrentCulture) ?? string.Empty;
 
             return prefix ?? string.Empty;
@@ -195,10 +193,10 @@ public class HtmlNodeNavigator : XPathNavigator
             Trace("=" + CurrentNode?.Value);
             if (CurrentNode is HtmlElement element)
             {
-                if ((Options & HtmlNodeNavigatorOptions.UppercasedValues) == HtmlNodeNavigatorOptions.UppercasedValues)
+                if (Options.HasFlag(HtmlNodeNavigatorOptions.UppercasedValues))
                     return element.InnerText?.ToUpper(CultureInfo.CurrentCulture) ?? string.Empty;
 
-                if ((Options & HtmlNodeNavigatorOptions.LowercasedValues) == HtmlNodeNavigatorOptions.LowercasedValues)
+                if (Options.HasFlag(HtmlNodeNavigatorOptions.LowercasedValues))
                     return element.InnerText?.ToLower(CultureInfo.CurrentCulture) ?? string.Empty;
 
                 return element.InnerText ?? string.Empty;
@@ -207,10 +205,10 @@ public class HtmlNodeNavigator : XPathNavigator
             var value = CurrentNode?.Value;
             if (value != null)
             {
-                if ((Options & HtmlNodeNavigatorOptions.UppercasedValues) == HtmlNodeNavigatorOptions.UppercasedValues)
+                if (Options.HasFlag(HtmlNodeNavigatorOptions.UppercasedValues))
                     return value.ToUpper(CultureInfo.CurrentCulture);
 
-                if ((Options & HtmlNodeNavigatorOptions.LowercasedValues) == HtmlNodeNavigatorOptions.LowercasedValues)
+                if (Options.HasFlag(HtmlNodeNavigatorOptions.LowercasedValues))
                     return value.ToLower(CultureInfo.CurrentCulture);
             }
 

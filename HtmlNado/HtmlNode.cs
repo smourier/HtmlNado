@@ -429,7 +429,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
     {
         // deep recursion testing. incurred because of xslt in general
         if (index > _maxRecursion)
-            throw new HtmlException("HTML0005: Maximum recursion depth (" + _maxRecursion + ") exceeded. This may be caused by a recursive XSLT.");
+            throw new HtmlException("0005: Maximum recursion depth (" + _maxRecursion + ") exceeded. This may be caused by a recursive XSLT.");
 
         _innerHtml = null;
         _innerText = null;
@@ -984,7 +984,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
 
         target.Value = Value;
 
-        if ((options & HtmlCloneOptions.StreamOrder) == HtmlCloneOptions.StreamOrder)
+        if (options.HasFlag(HtmlCloneOptions.StreamOrder))
         {
             target.StreamOrder = StreamOrder;
         }
@@ -1002,7 +1002,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
             }
         }
 
-        if ((options & HtmlCloneOptions.Attributes) == HtmlCloneOptions.Attributes)
+        if (options.HasFlag(HtmlCloneOptions.Attributes))
         {
             foreach (var att in Attributes)
             {
@@ -1012,7 +1012,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
 #endif
                 var cloneAtt = (HtmlAttribute)att.Clone(options);
 
-                if ((options & HtmlCloneOptions.OverwriteAttributes) == HtmlCloneOptions.OverwriteAttributes)
+                if (options.HasFlag(HtmlCloneOptions.OverwriteAttributes))
                 {
                     target.Attributes[cloneAtt.Name] = cloneAtt;
                 }
@@ -1023,7 +1023,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
             }
         }
 
-        if ((options & HtmlCloneOptions.Deep) == HtmlCloneOptions.Deep)
+        if (options.HasFlag(HtmlCloneOptions.Deep))
         {
             foreach (var node in ChildNodes)
             {
@@ -1032,7 +1032,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
             }
         }
 
-        if ((options & HtmlCloneOptions.Tag) == HtmlCloneOptions.Tag)
+        if (options.HasFlag(HtmlCloneOptions.Tag))
         {
             target._tag = _tag;
         }
@@ -1049,7 +1049,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
             foreach (var att in Attributes)
             {
                 if (att.ParentNode != this)
-                    throw new HtmlException("Internal error: node parenting is wrong. Attribute: " + att.Name);
+                    throw new HtmlException("0003: Internal error: node parenting is wrong. Attribute: " + att.Name);
             }
         }
 
@@ -1058,7 +1058,7 @@ public abstract class HtmlNode : INotifyPropertyChanged, IXPathNavigable, IXmlNa
             foreach (var node in ChildNodes)
             {
                 if (node.ParentNode != this)
-                    throw new HtmlException("Internal error: node parenting is wrong. Node: " + node.Clone(HtmlCloneOptions.Attributes).OuterHtml);
+                    throw new HtmlException("0004: Internal error: node parenting is wrong. Node: " + node.Clone(HtmlCloneOptions.Attributes).OuterHtml);
 
                 node.CheckParenting();
             }

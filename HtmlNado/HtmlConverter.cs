@@ -184,7 +184,7 @@ public partial class HtmlConverter
         if (LinkPlaceHolder == null || !WriteLink(href))
             return;
 
-        var skipSelfLinks = (Options & HtmlConverterOptions.DontSkipSelfLinks) != HtmlConverterOptions.DontSkipSelfLinks;
+        var skipSelfLinks = !Options.HasFlag(HtmlConverterOptions.DontSkipSelfLinks);
 
         string? lph;
         if (string.IsNullOrWhiteSpace(node.InnerText))
@@ -244,10 +244,10 @@ public partial class HtmlConverter
             var isHeading = IsHeadingTag(node.Name);
             if (isTitle || isHeading)
             {
-                if (isTitle && ((Options & HtmlConverterOptions.IncludeTitle) != HtmlConverterOptions.IncludeTitle))
+                if (isTitle && !Options.HasFlag(HtmlConverterOptions.IncludeTitle))
                     return;
 
-                if (isHeading && ((Options & HtmlConverterOptions.IncludeHeadings) != HtmlConverterOptions.IncludeHeadings))
+                if (isHeading && !Options.HasFlag(HtmlConverterOptions.IncludeHeadings))
                     return;
 
                 var heading = AppendPlainText(node);

@@ -168,7 +168,7 @@ public class HtmlDocument : HtmlNode
         }
 
         if (baseAddress == null)
-            throw new HtmlException("HTML0002: Cannot determine document's base address.");
+            throw new HtmlException("0002: Cannot determine document's base address.");
 
         return new Uri(baseAddress, uri);
     }
@@ -179,7 +179,7 @@ public class HtmlDocument : HtmlNode
 
         Clear();
         using var reader = new StringReader(html);
-        StreamEncoding = Encoding.Default; // This is arguable, but it's better for saves
+        StreamEncoding = Encoding.UTF8;
         InternalLoad(reader, false);
     }
 
@@ -223,8 +223,7 @@ public class HtmlDocument : HtmlNode
         }
         else
         {
-            // use ansi as the default encoding
-            using var reader = new StreamReader(filePath, Encoding.Default, false);
+            using var reader = new StreamReader(filePath, Encoding.UTF8, false);
             reader.Peek();
             StreamEncoding = reader.CurrentEncoding;
             if (InternalLoad(reader, true))
@@ -295,7 +294,7 @@ public class HtmlDocument : HtmlNode
 
         Clear();
         FilePath = filePath;
-        using (var reader = new StreamReader(filePath, Encoding.Default, true))
+        using (var reader = new StreamReader(filePath, Encoding.UTF8, true))
         {
             reader.Peek();
             StreamEncoding = reader.CurrentEncoding;
@@ -328,7 +327,7 @@ public class HtmlDocument : HtmlNode
         }
         else
         {
-            using var reader = new StreamReader(stream, Encoding.Default, false);
+            using var reader = new StreamReader(stream, Encoding.UTF8, false);
             reader.Peek();
             StreamEncoding = reader.CurrentEncoding;
             if (InternalLoad(reader, true))
@@ -419,7 +418,7 @@ public class HtmlDocument : HtmlNode
         ArgumentNullException.ThrowIfNull(stream);
 
         Clear();
-        using (var reader = new StreamReader(stream, Encoding.Default))
+        using (var reader = new StreamReader(stream, Encoding.UTF8))
         {
             reader.Peek();
             StreamEncoding = reader.CurrentEncoding;
@@ -678,7 +677,7 @@ public class HtmlDocument : HtmlNode
 
             AddError(new HtmlError(reader.State?.Line ?? 0, reader.State?.Column ?? 0, reader.State?.Offset ?? 0, HtmlErrorType.EncodingMismatch));
             if (Options.ReaderThrowsOnEncodingMismatch)
-                throw new HtmlException(string.Format(CultureInfo.CurrentCulture, "HTML0004: Html encoding mismatch error. There seems to be mismatch between the stream (HTTP, File, etc.) encoding '{0}' and the declared (HTML META) encoding '{1}'.", StreamEncoding.EncodingName, DetectedEncoding.EncodingName));
+                throw new HtmlException(string.Format(CultureInfo.CurrentCulture, "L0004: Html encoding mismatch error. There seems to be mismatch between the stream (HTTP, File, etc.) encoding '{0}' and the declared (HTML META) encoding '{1}'.", StreamEncoding.EncodingName, DetectedEncoding.EncodingName));
         }
         return true;
     }
@@ -823,7 +822,7 @@ public class HtmlDocument : HtmlNode
                     {
                         if (element != null)
                         {
-                            var canHaveChild = (htmlReader.Options.GetElementReadOptions(element.Name) & HtmlElementReadOptions.NoChild) != HtmlElementReadOptions.NoChild;
+                            var canHaveChild = !htmlReader.Options.GetElementReadOptions(element.Name).HasFlag(HtmlElementReadOptions.NoChild);
                             if (canHaveChild)
                             {
                                 current = element;
@@ -866,7 +865,7 @@ public class HtmlDocument : HtmlNode
 
                                 if (!childElement.IsClosed)
                                 {
-                                    if ((htmlReader.Options.GetElementReadOptions(childElement.Name) & HtmlElementReadOptions.AutoClosed) != HtmlElementReadOptions.AutoClosed)
+                                    if (!htmlReader.Options.GetElementReadOptions(childElement.Name).HasFlag(HtmlElementReadOptions.AutoClosed))
                                     {
                                         error = new HtmlError(htmlReader.State, HtmlErrorType.TagNotClosed);
                                         AddError(error);
@@ -955,7 +954,7 @@ public class HtmlDocument : HtmlNode
             if (DetectedEncoding == null)
             {
                 if (htmlReader.Options.ReaderThrowsOnEncodingMismatch)
-                    throw new HtmlException(string.Format(CultureInfo.CurrentCulture, "HTML0003: Html text encoding error. There seems to be a mismatch between the encoding '{0}', used to read the input Html text, or to open the input Html file, and the real detected text encoding, which cannot be determined at that time. If you do not want to see this exception thrown, please configure the ThrowOnEncodingError HtmlReader option. Offset of the first detected text encoding mismatch is {1}.", StreamEncoding?.EncodingName, htmlReader.FirstEncodingErrorOffset));
+                    throw new HtmlException(string.Format(CultureInfo.CurrentCulture, "0003: Html text encoding error. There seems to be a mismatch between the encoding '{0}', used to read the input Html text, or to open the input Html file, and the real detected text encoding, which cannot be determined at that time. If you do not want to see this exception thrown, please configure the ThrowOnEncodingError HtmlReader option. Offset of the first detected text encoding mismatch is {1}.", StreamEncoding?.EncodingName, htmlReader.FirstEncodingErrorOffset));
             }
         }
         return true;

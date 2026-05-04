@@ -335,7 +335,7 @@ public class HtmlReader
                         SetCurrentElement(Value.ToString());
                         PushCurrentState();
                         PushCurrentState(HtmlParserState.TagEnd, _currentElement);
-                        if ((Options.GetElementReadOptions(_currentElement) & HtmlElementReadOptions.InnerRaw) == HtmlElementReadOptions.InnerRaw)
+                        if (Options.GetElementReadOptions(_currentElement).HasFlag(HtmlElementReadOptions.InnerRaw))
                         {
                             // no need to check for <script type='' ..> here
                             ParserState = HtmlParserState.RawText;
@@ -394,7 +394,7 @@ public class HtmlReader
                     if (c == '>')
                     {
                         PushCurrentState(HtmlParserState.TagEnd, _currentElement);
-                        if ((Options.GetElementReadOptions(_currentElement) & HtmlElementReadOptions.InnerRaw) == HtmlElementReadOptions.InnerRaw)
+                        if (Options.GetElementReadOptions(_currentElement).HasFlag(HtmlElementReadOptions.InnerRaw))
                         {
                             if (Options.ParseScriptType(_typeAttribute))
                             {
@@ -471,7 +471,7 @@ public class HtmlReader
                             PushCurrentState();
                             PushCurrentState(HtmlParserState.AttValue, null);
                             PushCurrentState(HtmlParserState.TagEnd, _currentElement);
-                            if ((Options.GetElementReadOptions(_currentElement) & HtmlElementReadOptions.InnerRaw) == HtmlElementReadOptions.InnerRaw)
+                            if (Options.GetElementReadOptions(_currentElement).HasFlag(HtmlElementReadOptions.InnerRaw))
                             {
                                 if (Options.ParseScriptType(_typeAttribute))
                                 {
@@ -521,7 +521,7 @@ public class HtmlReader
                         PushCurrentState();
                         PushCurrentState(HtmlParserState.AttValue, null);
                         PushCurrentState(HtmlParserState.TagEnd, _currentElement);
-                        if ((Options.GetElementReadOptions(_currentElement) & HtmlElementReadOptions.InnerRaw) == HtmlElementReadOptions.InnerRaw)
+                        if (Options.GetElementReadOptions(_currentElement).HasFlag(HtmlElementReadOptions.InnerRaw))
                         {
                             if (Options.ParseScriptType(_typeAttribute))
                             {
@@ -599,7 +599,7 @@ public class HtmlReader
                             {
                                 PushCurrentState();
                                 PushCurrentState(HtmlParserState.TagEnd, _currentElement);
-                                if ((Options.GetElementReadOptions(_currentElement) & HtmlElementReadOptions.InnerRaw) == HtmlElementReadOptions.InnerRaw)
+                                if (Options.GetElementReadOptions(_currentElement).HasFlag(HtmlElementReadOptions.InnerRaw))
                                 {
                                     if (Options.ParseScriptType(_typeAttribute))
                                     {

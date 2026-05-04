@@ -172,7 +172,7 @@ public class HtmlElement : HtmlNode
             if (owner == null)
                 return false;
 
-            return (owner.Options.GetElementWriteOptions(Name) & HtmlElementWriteOptions.NoChild) == HtmlElementWriteOptions.NoChild;
+            return owner.Options.GetElementWriteOptions(Name).HasFlag(HtmlElementWriteOptions.NoChild);
         }
         set => _noChild = value;
     }
@@ -187,7 +187,7 @@ public class HtmlElement : HtmlNode
             if (OwnerDocument == null)
                 return false;
 
-            return (OwnerDocument.Options.GetElementWriteOptions(Name) & HtmlElementWriteOptions.AlwaysClose) == HtmlElementWriteOptions.AlwaysClose;
+            return OwnerDocument.Options.GetElementWriteOptions(Name).HasFlag(HtmlElementWriteOptions.AlwaysClose);
         }
         set => _alwaysClose = value;
     }
@@ -202,7 +202,7 @@ public class HtmlElement : HtmlNode
             if (OwnerDocument == null)
                 return false;
 
-            return (OwnerDocument.Options.GetElementWriteOptions(Name) & HtmlElementWriteOptions.DontCloseIfEmpty) == HtmlElementWriteOptions.DontCloseIfEmpty;
+            return OwnerDocument.Options.GetElementWriteOptions(Name).HasFlag(HtmlElementWriteOptions.DontCloseIfEmpty);
         }
         set => _dontCloseIfEmpty = value;
     }
