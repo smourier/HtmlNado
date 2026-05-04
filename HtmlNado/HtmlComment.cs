@@ -10,15 +10,9 @@ public class HtmlComment : HtmlNode
     {
     }
 
-    [Browsable(false)]
-    public override HtmlAttributeList Attributes => base.Attributes;
-
-    [Browsable(false)]
-    public override HtmlNodeList ChildNodes => base.ChildNodes;
-
     public override HtmlNodeType NodeType => HtmlNodeType.Comment;
 
-    public override string Name
+    public override string? Name
     {
         get => base.Name;
         set

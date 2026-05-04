@@ -27,7 +27,7 @@ public sealed class HtmlAttributeList : IList<HtmlAttribute>, INotifyCollectionC
 
         if (string.IsNullOrWhiteSpace(prefix) && !string.IsNullOrWhiteSpace(namespaceURI))
         {
-            prefix = owner.GetPrefixOfNamespace(namespaceURI);
+            prefix = owner.GetPrefixOfNamespace(namespaceURI) ?? string.Empty;
         }
 
         var att = owner.CreateAttribute(prefix, localName, namespaceURI);
@@ -153,10 +153,8 @@ public sealed class HtmlAttributeList : IList<HtmlAttribute>, INotifyCollectionC
         }
     }
 
-    public bool RemoveByPrefix(string prefix, string localName)
+    public bool RemoveByPrefix(string? prefix, string? localName)
     {
-        ArgumentNullException.ThrowIfNull(prefix);
-        ArgumentNullException.ThrowIfNull(localName);
         var att = _list.Find(a => localName.EqualsIgnoreCase(a.LocalName) && string.Equals(prefix, a.Prefix, StringComparison.Ordinal));
         if (att == null)
             return false;
@@ -164,10 +162,8 @@ public sealed class HtmlAttributeList : IList<HtmlAttribute>, INotifyCollectionC
         return Remove(att);
     }
 
-    public bool Remove(string localName, string namespaceURI)
+    public bool Remove(string? localName, string? namespaceURI)
     {
-        ArgumentNullException.ThrowIfNull(localName);
-        ArgumentNullException.ThrowIfNull(namespaceURI);
         var att = this[localName, namespaceURI];
         if (att == null)
             return false;
@@ -175,9 +171,8 @@ public sealed class HtmlAttributeList : IList<HtmlAttribute>, INotifyCollectionC
         return Remove(att);
     }
 
-    public bool Remove(string name)
+    public bool Remove(string? name)
     {
-        ArgumentNullException.ThrowIfNull(name);
         var att = this[name];
         if (att == null)
             return false;
@@ -185,9 +180,10 @@ public sealed class HtmlAttributeList : IList<HtmlAttribute>, INotifyCollectionC
         return Remove(att);
     }
 
-    public bool Remove(HtmlAttribute attribute)
+    public bool Remove(HtmlAttribute? attribute)
     {
-        ArgumentNullException.ThrowIfNull(attribute);
+        if (attribute == null)
+            return false;
 
         if (attribute.ParentNode != Parent)
             throw new ArgumentException(null, nameof(attribute));
@@ -221,7 +217,7 @@ public sealed class HtmlAttributeList : IList<HtmlAttribute>, INotifyCollectionC
         }
     }
 
-    public HtmlAttribute? this[string localName, string namespaceURI]
+    public HtmlAttribute? this[string? localName, string? namespaceURI]
     {
         get => _list.Find(a => localName.EqualsIgnoreCase(a.LocalName) && a.NamespaceURI != null && string.Equals(namespaceURI, a.NamespaceURI, StringComparison.Ordinal));
         set

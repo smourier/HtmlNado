@@ -76,7 +76,7 @@ public class HtmlElement : HtmlNode
         }
     }
 
-    public override string InnerHtml
+    public override string? InnerHtml
     {
         get => base.InnerHtml;
         set
@@ -146,7 +146,7 @@ public class HtmlElement : HtmlNode
 
     public override HtmlNodeType NodeType => _nodeType;
 
-    internal HtmlElement? GetParentToClose(int indent, string name)
+    internal HtmlElement? GetParentToClose(int indent, string? name)
     {
         // NOTE: this avoids possible stack overflow errors for "super malformed" documents
         if (indent > _maxRecursion)
@@ -250,7 +250,7 @@ public class HtmlElement : HtmlNode
             {
                 writer.Write(" ?>");
             }
-            else if (Name.StartsWith('!'))
+            else if (Name?.StartsWith('!') == true)
             {
                 // suc as !DOCTYPE
                 writer.Write('>');
@@ -309,6 +309,9 @@ public class HtmlElement : HtmlNode
             owner?.WriteDocType(writer);
             return;
         }
+
+        if (LocalName == null)
+            return;
 
         writer.WriteStartElement(GetValidXmlName(Prefix), GetValidXmlName(LocalName), NamespaceURI);
         if (HasAttributes)

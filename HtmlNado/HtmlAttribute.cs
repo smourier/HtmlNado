@@ -13,7 +13,10 @@ public class HtmlAttribute : HtmlNode
         _escapeQuoteChar = true;
     }
 
-    public override string NamespaceURI
+    public HtmlElement? OwnerElement => (HtmlElement?)ParentNode;
+    public virtual bool IsNamespace => NamespaceURI != null && NamespaceURI.Equals(XmlnsNamespaceURI, StringComparison.Ordinal);
+    public override HtmlNodeType NodeType => HtmlNodeType.Attribute;
+    public override string? NamespaceURI
     {
         get
         {
@@ -24,8 +27,6 @@ public class HtmlAttribute : HtmlNode
         }
         set => base.NamespaceURI = value;
     }
-
-    public virtual bool IsNamespace => NamespaceURI != null && NamespaceURI.Equals(XmlnsNamespaceURI, StringComparison.Ordinal);
 
     public virtual bool EscapeQuoteChar
     {
@@ -78,16 +79,6 @@ public class HtmlAttribute : HtmlNode
             }
         }
     }
-
-    public HtmlElement? OwnerElement => (HtmlElement?)ParentNode;
-
-    public override HtmlNodeType NodeType => HtmlNodeType.Attribute;
-
-    [Browsable(false)]
-    public override HtmlAttributeList Attributes => base.Attributes;
-
-    [Browsable(false)]
-    public override HtmlNodeList ChildNodes => base.ChildNodes;
 
     public override int ParentIndex
     {
@@ -218,8 +209,6 @@ public class HtmlAttribute : HtmlNode
         }
     }
 
-    protected virtual char GetQuoteChar() => QuoteChar;
-
     public virtual void WriteContentToWhenUndefinedQuoteChar(TextWriter writer)
     {
         var eqc = EscapeQuoteChar;
@@ -235,27 +224,6 @@ public class HtmlAttribute : HtmlNode
         writer.Write('\'');
         writer.Write(eqc ? value.Replace("'", "&apos;") : value);
         writer.Write('\'');
-    }
-
-    internal static string? UnescapeText(string? text, char quoteChar)
-    {
-        if (text == null)
-            return null;
-
-        if (quoteChar == '"')
-            return text.Replace("&quot;", quoteChar.ToString(CultureInfo.InvariantCulture));
-
-        return text.Replace("&apos;", quoteChar.ToString(CultureInfo.InvariantCulture));
-    }
-
-    protected virtual string? GetValue(ref bool escapeQuoteChar)
-    {
-        using var sw = HtmlDocument.CreateStringWriter(OwnerDocument, CultureInfo.InvariantCulture);
-        foreach (var node in ChildNodes)
-        {
-            node.WriteTo(sw);
-        }
-        return sw.ToString();
     }
 
     public override void WriteContentTo(TextWriter writer)
@@ -288,7 +256,7 @@ public class HtmlAttribute : HtmlNode
         if (string.Equals(Prefix, XmlnsPrefix, StringComparison.Ordinal) || string.Equals(Name, XmlnsPrefix, StringComparison.Ordinal))
             return;
 
-        writer.WriteStartAttribute(GetValidXmlName(Prefix), GetValidXmlName(LocalName), NamespaceURI);
+        writer.WriteStartAttribute(GetValidXmlName(Prefix), GetValidXmlName(LocalName) ?? string.Empty, NamespaceURI);
         WriteContentTo(writer);
         writer.WriteEndAttribute();
     }
@@ -296,7 +264,6 @@ public class HtmlAttribute : HtmlNode
     public override void WriteContentTo(XmlWriter writer)
     {
         ArgumentNullException.ThrowIfNull(writer);
-
         foreach (var node in ChildNodes)
         {
             node.WriteTo(writer);
@@ -311,5 +278,27 @@ public class HtmlAttribute : HtmlNode
         att._quoteChar = _quoteChar;
         att._isValueDefined = _isValueDefined;
         att._escapeQuoteChar = _escapeQuoteChar;
+    }
+
+    protected virtual char GetQuoteChar() => QuoteChar;
+    protected virtual string? GetValue(ref bool escapeQuoteChar)
+    {
+        using var sw = HtmlDocument.CreateStringWriter(OwnerDocument, CultureInfo.InvariantCulture);
+        foreach (var node in ChildNodes)
+        {
+            node.WriteTo(sw);
+        }
+        return sw.ToString();
+    }
+
+    internal static string? UnescapeText(string? text, char quoteChar)
+    {
+        if (text == null)
+            return null;
+
+        if (quoteChar == '"')
+            return text.Replace("&quot;", quoteChar.ToString(CultureInfo.InvariantCulture));
+
+        return text.Replace("&apos;", quoteChar.ToString(CultureInfo.InvariantCulture));
     }
 }

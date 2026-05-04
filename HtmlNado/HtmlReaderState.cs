@@ -3,7 +3,7 @@
 [DebuggerDisplay("{Line}x{Column}x{Offset} {ParserState} '{RawValue}'")]
 public class HtmlReaderState
 {
-    public HtmlReaderState(HtmlReader reader, HtmlParserState rawParserState, string rawValue)
+    public HtmlReaderState(HtmlReader reader, HtmlParserState? rawParserState, string? rawValue)
     {
         ArgumentNullException.ThrowIfNull(reader);
 
@@ -21,12 +21,12 @@ public class HtmlReaderState
     public virtual int Offset { get; protected set; }
     public virtual int Line { get; protected set; }
     public virtual int Column { get; protected set; }
-    public virtual string RawValue { get; protected set; }
-    public virtual HtmlParserState RawParserState { get; protected set; }
+    public virtual string? RawValue { get; protected set; }
+    public virtual HtmlParserState? RawParserState { get; protected set; }
 
-    public virtual HtmlFragmentType FragmentType => (HtmlFragmentType)(int)ParserState;
+    public virtual HtmlFragmentType? FragmentType => (HtmlFragmentType?)(int?)ParserState;
 
-    public virtual HtmlParserState ParserState
+    public virtual HtmlParserState? ParserState
     {
         get
         {

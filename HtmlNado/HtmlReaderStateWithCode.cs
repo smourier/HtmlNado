@@ -1,10 +1,11 @@
 ﻿namespace HtmlNado;
 
-public class HtmlReaderStateWithCode(HtmlReaderWithCode reader, HtmlParserState rawParserState, string rawValue) : HtmlReaderState(reader, rawParserState, rawValue)
+public class HtmlReaderStateWithCode(HtmlReaderWithCode reader, HtmlParserState rawParserState, string? rawValue)
+    : HtmlReaderState(reader, rawParserState, rawValue)
 {
     public new HtmlReaderWithCode Reader => (HtmlReaderWithCode)base.Reader;
 
-    public override string Value
+    public override string? Value
     {
         get
         {

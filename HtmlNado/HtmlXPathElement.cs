@@ -73,7 +73,7 @@ public class HtmlXPathElement : HtmlElement
         return null;
     }
 
-    private string? GetPrefix(string namespaceURI)
+    private string? GetPrefix(string? namespaceURI)
     {
         if (string.IsNullOrEmpty(namespaceURI) || OwnerDocument == null)
             return null;

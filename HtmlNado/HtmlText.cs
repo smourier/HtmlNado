@@ -11,12 +11,6 @@ public class HtmlText : HtmlNode
     {
     }
 
-    [Browsable(false)]
-    public override HtmlAttributeList Attributes => base.Attributes;
-
-    [Browsable(false)]
-    public override HtmlNodeList ChildNodes => base.ChildNodes;
-
     public override HtmlNodeType NodeType => HtmlNodeType.Text;
     public virtual bool IsWhitespace => string.IsNullOrWhiteSpace(Value);
 
@@ -33,7 +27,7 @@ public class HtmlText : HtmlNode
         }
     }
 
-    public override string Name
+    public override string? Name
     {
         get => base.Name;
         set

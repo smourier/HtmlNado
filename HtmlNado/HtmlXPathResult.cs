@@ -3,7 +3,7 @@
 // this is used only when a XPATH query does not return a node-set, for example "count(//td)" returns a number
 public class HtmlXPathResult : HtmlNode
 {
-    protected internal HtmlXPathResult(HtmlDocument ownerDocument, object result)
+    protected internal HtmlXPathResult(HtmlDocument? ownerDocument, object? result)
         : base(string.Empty, "#result", string.Empty, ownerDocument)
     {
         Result = result;

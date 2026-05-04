@@ -58,8 +58,11 @@ public class HtmlTextBlockReader
         }
     }
 
-    private static HtmlTextBlockType? IsHeadingOrTitleTag(string name)
+    private static HtmlTextBlockType? IsHeadingOrTitleTag(string? name)
     {
+        if (name == null)
+            return null;
+
         if (name.EqualsIgnoreCase("title"))
             return HtmlTextBlockType.Title;
 

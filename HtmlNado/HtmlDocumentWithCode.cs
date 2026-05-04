@@ -34,7 +34,7 @@ public class HtmlDocumentWithCode : HtmlXPathDocument
 
     protected override void OnParsed(object sender, HtmlDocumentParseEventArgs e)
     {
-        if (e.Reader.State.FragmentType == HtmlFragmentType.TagEnd)
+        if (e.Reader.State?.FragmentType == HtmlFragmentType.TagEnd)
         {
             var startDirective = CodeStartToken + DirectiveToken.ToString(CultureInfo.InvariantCulture);
             if (string.Equals(e.Reader.State.Value, startDirective, StringComparison.OrdinalIgnoreCase))
@@ -42,7 +42,7 @@ public class HtmlDocumentWithCode : HtmlXPathDocument
                 if (e.CurrentNode is HtmlElement element1 && e.CurrentNode.HasAttributes)
                 {
                     var name = e.CurrentNode.Attributes[0].Name;
-                    if (name.EndsWith(CodeEndToken.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase))
+                    if (name?.EndsWith(CodeEndToken.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase) == true)
                     {
                         name = name[..^1];
                     }
@@ -57,10 +57,10 @@ public class HtmlDocumentWithCode : HtmlXPathDocument
                     e.CurrentNode = e.CurrentNode.ParentNode;
                 }
             }
-            else if (e.Reader.State.Value?.StartsWith(startDirective, StringComparison.OrdinalIgnoreCase) == true && e.CurrentNode is HtmlElement element1)
+            else if (e.Reader.State.Value?.StartsWith(startDirective, StringComparison.OrdinalIgnoreCase) == true && e.CurrentNode is HtmlElement element1 && e.CurrentNode != null)
             {
-                var name = e.CurrentNode.Name[2..];
-                if (name.EndsWith(CodeEndToken.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase))
+                var name = e.CurrentNode.Name?[2..];
+                if (name?.EndsWith(CodeEndToken.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase) == true)
                 {
                     name = name[..^1];
                 }
@@ -81,7 +81,7 @@ public class HtmlDocumentWithCode : HtmlXPathDocument
                 e.CurrentNode = e.CurrentNode.ParentNode;
             }
         }
-        else if (e.Reader.State.FragmentType == HtmlFragmentType.Text && HasPrematureEnd)
+        else if (e.Reader.State?.FragmentType == HtmlFragmentType.Text && HasPrematureEnd)
         {
             var element = e.CurrentNode as HtmlElement;
             Unclose(element);

@@ -5,8 +5,8 @@ public class HtmlXPathDocument : HtmlDocument
     public const string HtmlTransformNamespaceUri = "http://www.simonmourier.com/htf/2026/1";
     public const string HtmlTransformNamespacePrefix = "htf";
 
-    private List<Tuple<string, string>> _filteredAttributes;
-    internal List<Tuple<string, string>> _discriminantAttributes;
+    private List<Tuple<string, string>> _filteredAttributes = [];
+    internal List<Tuple<string, string>> _discriminantAttributes = [];
 
     static HtmlXPathDocument()
     {
@@ -18,8 +18,19 @@ public class HtmlXPathDocument : HtmlDocument
 
     private static bool IsNamespaceAttribute(HtmlAttribute attribute) => attribute != null && string.Equals(attribute.NamespaceURI, XmlnsNamespaceURI, StringComparison.Ordinal) && string.Equals(attribute.Prefix, XmlnsPrefix, StringComparison.Ordinal);
 
-    private void RemoveHtmlTransformNamespace(HtmlElement element)
+    protected internal HtmlXPathDocument()
     {
+        AddDiscriminantAttribute("key", HtmlTransformNamespaceUri);
+        XPathNamespaceManager = new XmlNamespaceManager(new NameTable());
+    }
+
+    public virtual XmlNamespaceManager XPathNamespaceManager { get; }
+
+    private void RemoveHtmlTransformNamespace(HtmlElement? element)
+    {
+        if (element == null)
+            return;
+
         var remove = new List<HtmlAttribute>();
         foreach (var att in element.Attributes)
         {
@@ -62,7 +73,10 @@ public class HtmlXPathDocument : HtmlDocument
                     if (parentNode != null)
                     {
                         parentNode.RemoveChild(other);
-                        var importNode = parentNode.OwnerDocument.ImportNode(element);
+                        var importNode = parentNode.OwnerDocument?.ImportNode(element);
+                        if (importNode == null)
+                            continue;
+
                         RemoveHtmlTransformNamespace((HtmlElement)importNode);
                         parentNode.AppendChild(importNode);
                     }
@@ -86,7 +100,7 @@ public class HtmlXPathDocument : HtmlDocument
                             const string removeToken = "remove-";
                             const string removeTokenNs = "removeNamespace-";
 
-                            if (att.LocalName.StartsWith(replaceToken, StringComparison.OrdinalIgnoreCase))
+                            if (att.LocalName?.StartsWith(replaceToken, StringComparison.OrdinalIgnoreCase) == true)
                             {
                                 var replaceName = att.LocalName[replaceToken.Length..];
                                 if (!string.IsNullOrEmpty(replaceName))
@@ -98,13 +112,13 @@ public class HtmlXPathDocument : HtmlDocument
                                         ns = nsAtt.Value.Nullify();
                                     }
 
-                                    HtmlAttribute replaceAtt;
+                                    HtmlAttribute? replaceAtt;
                                     if (ns != null)
                                     {
                                         replaceAtt = element.Attributes[replaceName, ns];
                                         if (replaceAtt != null)
                                         {
-                                            otherElement.SetAttribute(replaceName, ns, replaceAtt.Value);
+                                            otherElement.SetAttribute(replaceName, ns, replaceAtt?.Value);
                                         }
                                     }
                                     else
@@ -117,7 +131,7 @@ public class HtmlXPathDocument : HtmlDocument
                                     }
                                 }
                             }
-                            else if (att.LocalName.StartsWith(removeToken, StringComparison.OrdinalIgnoreCase))
+                            else if (att.LocalName?.StartsWith(removeToken, StringComparison.OrdinalIgnoreCase) == true)
                             {
                                 var removeName = att.LocalName[removeToken.Length..];
                                 if (!string.IsNullOrEmpty(removeName))
@@ -144,7 +158,10 @@ public class HtmlXPathDocument : HtmlDocument
             }
 
             var parent = EnsureTargetParent(element, target, out changed);
-            var targetElement = target.CreateElement(element.Prefix, element.LocalName, element.NamespaceURI);
+            if (element.LocalName == null)
+                continue;
+
+            var targetElement = target.CreateElement(element.Prefix ?? string.Empty, element.LocalName, element.NamespaceURI);
             changed = true;
             var prepend = element.GetAttributeValue("prepend", HtmlTransformNamespaceUri, false);
             if (parent == null)
@@ -175,7 +192,10 @@ public class HtmlXPathDocument : HtmlDocument
                 if (IsDiscriminant(att) || IsNamespaceAttribute(att) | string.Equals(att.NamespaceURI, HtmlTransformNamespaceUri, StringComparison.Ordinal))
                     continue;
 
-                targetElement.SetAttribute(att.LocalName, att.NamespaceURI, att.Value);
+                if (att.LocalName == null)
+                    continue;
+
+                targetElement.SetAttribute(att.LocalName, att.NamespaceURI ?? string.Empty, att.Value);
             }
         }
         return changed;
@@ -184,13 +204,13 @@ public class HtmlXPathDocument : HtmlDocument
     private static HtmlNode EnsureTargetParent(HtmlXPathElement element, HtmlXPathDocument target, out bool changed)
     {
         changed = false;
-        if (element.ParentNode is HtmlXPathElement parent)
+        if (element.ParentNode is HtmlXPathElement parent && parent.LocalName != null)
         {
-            if (target.SelectSingleNode(parent.XPathExpression, element.OwnerDocument.XPathNamespaceManager) is HtmlElement targetElement)
+            if (target.SelectSingleNode(parent.XPathExpression, element.OwnerDocument?.XPathNamespaceManager) is HtmlElement targetElement)
                 return targetElement;
 
             var parentElement = EnsureTargetParent(parent, target, out _);
-            targetElement = target.CreateElement(parent.Prefix, parent.LocalName, parent.NamespaceURI);
+            targetElement = target.CreateElement(parent.Prefix ?? string.Empty, parent.LocalName, parent.NamespaceURI);
 
             bool prepend = parent.GetAttributeValue("prepend", HtmlTransformNamespaceUri, false);
             if (prepend)
@@ -207,31 +227,18 @@ public class HtmlXPathDocument : HtmlDocument
         return target;
     }
 
-    protected internal HtmlXPathDocument()
-    {
-        AddDiscriminantAttribute("key", HtmlTransformNamespaceUri);
-        XPathNamespaceManager = new XmlNamespaceManager(new NameTable());
-    }
-
-    public virtual XmlNamespaceManager XPathNamespaceManager { get; private set; }
-
-    public override HtmlElement CreateElement(string prefix, string localName, string namespaceURI) => new HtmlXPathElement(prefix, localName, namespaceURI, this);
-
+    public override HtmlElement CreateElement(string prefix, string localName, string? namespaceURI) => new HtmlXPathElement(prefix, localName, namespaceURI, this);
     public override HtmlDocument CreateDocument() => new HtmlXPathDocument();
 
     public virtual void AddDiscriminantAttribute(string name, string namespaceURI)
     {
         ArgumentNullException.ThrowIfNull(name);
-
-        _discriminantAttributes ??= [];
         _discriminantAttributes.Add(new Tuple<string, string>(name, namespaceURI));
     }
 
     public virtual void AddFilteredAttribute(string name, string namespaceURI)
     {
         ArgumentNullException.ThrowIfNull(name);
-
-        _filteredAttributes ??= [];
         _filteredAttributes.Add(new Tuple<string, string>(name, namespaceURI));
     }
 
@@ -239,15 +246,12 @@ public class HtmlXPathDocument : HtmlDocument
     {
         ArgumentNullException.ThrowIfNull(attribute);
 
-        if (_discriminantAttributes != null)
+        foreach (var pair in _discriminantAttributes)
         {
-            foreach (var pair in _discriminantAttributes)
-            {
-                string ns = attribute.NamespaceURI.Nullify();
-                string dns = pair.Item2.Nullify();
-                if (string.Equals(ns, dns, StringComparison.Ordinal) && string.Equals(pair.Item1, attribute.LocalName, StringComparison.Ordinal))
-                    return true;
-            }
+            var ns = attribute.NamespaceURI.Nullify();
+            var dns = pair.Item2.Nullify();
+            if (string.Equals(ns, dns, StringComparison.Ordinal) && string.Equals(pair.Item1, attribute.LocalName, StringComparison.Ordinal))
+                return true;
         }
         return false;
     }
@@ -259,15 +263,12 @@ public class HtmlXPathDocument : HtmlDocument
         if (IsNamespaceAttribute(attribute))
             return true;
 
-        if (_filteredAttributes != null)
+        foreach (var pair in _filteredAttributes)
         {
-            foreach (var pair in _filteredAttributes)
-            {
-                var ns = attribute.NamespaceURI.Nullify();
-                var dns = pair.Item2.Nullify();
-                if (string.Equals(ns, dns, StringComparison.Ordinal) && string.Equals(pair.Item1, attribute.LocalName, StringComparison.Ordinal))
-                    return true;
-            }
+            var ns = attribute.NamespaceURI.Nullify();
+            var dns = pair.Item2.Nullify();
+            if (string.Equals(ns, dns, StringComparison.Ordinal) && string.Equals(pair.Item1, attribute.LocalName, StringComparison.Ordinal))
+                return true;
         }
         return false;
     }
@@ -275,11 +276,8 @@ public class HtmlXPathDocument : HtmlDocument
     public virtual void FindDifferentAttributes(HtmlNode node1, HtmlNode node2, IList<HtmlAttribute> onlyInNode1, IList<HtmlAttribute> onlyInNode2, IList<HtmlAttribute> different)
     {
         ArgumentNullException.ThrowIfNull(node1);
-
         ArgumentNullException.ThrowIfNull(node2);
-
         ArgumentNullException.ThrowIfNull(onlyInNode1);
-
         ArgumentNullException.ThrowIfNull(onlyInNode2);
 
         foreach (var att in node1.Attributes)

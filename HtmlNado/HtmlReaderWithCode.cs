@@ -1,6 +1,7 @@
 ﻿namespace HtmlNado;
 
-public class HtmlReaderWithCode(HtmlDocumentWithCode document, TextReader reader, HtmlOptions options) : HtmlReader(reader, options)
+public class HtmlReaderWithCode(HtmlDocumentWithCode document, TextReader reader, HtmlOptions options)
+    : HtmlReader(reader, options)
 {
     public HtmlDocumentWithCode Document { get; private set; } = document;
     protected bool IsInCode { get; set; }
@@ -14,7 +15,7 @@ public class HtmlReaderWithCode(HtmlDocumentWithCode document, TextReader reader
         Document.HasPrematureEnd = true;
     }
 
-    public override HtmlReaderState CreateState(HtmlParserState rawParserState, string rawValue) => new HtmlReaderStateWithCode(this, rawParserState, rawValue);
+    public override HtmlReaderState CreateState(HtmlParserState rawParserState, string? rawValue) => new HtmlReaderStateWithCode(this, rawParserState, rawValue);
 
     protected override void OnParsing(object sender, HtmlReaderParseEventArgs e)
     {

@@ -3,8 +3,8 @@
 public class HtmlReader
 {
     private readonly StringBuilder _rawValue = new();
-    private string _currentElement;
-    private string _typeAttribute; // only for <script type=""...> parsing
+    private string? _currentElement;
+    private string? _typeAttribute; // only for <script type=""...> parsing
     private bool _attIsScriptType; // only for <script type=""...> parsing
     private int _eatNext;
     private bool _eof;
@@ -14,14 +14,14 @@ public class HtmlReader
     internal int _column = 1;
     internal int _offset = -1;
 
-    public event EventHandler<HtmlReaderParseEventArgs> Parsing;
+    public event EventHandler<HtmlReaderParseEventArgs>? Parsing;
 
     public HtmlReader(TextReader reader)
         : this(reader, null)
     {
     }
 
-    public HtmlReader(TextReader reader, HtmlOptions options)
+    public HtmlReader(TextReader reader, HtmlOptions? options)
     {
         ArgumentNullException.ThrowIfNull(reader);
 
@@ -30,7 +30,7 @@ public class HtmlReader
         options ??= new HtmlOptions();
 
         FirstEncodingErrorOffset = -1;
-        Errors = new Collection<HtmlError>();
+        Errors = [];
         Options = options;
         TextReader = reader;
     }
@@ -38,9 +38,9 @@ public class HtmlReader
     public TextReader TextReader { get; }
     public HtmlOptions Options { get; }
     public virtual ICollection<HtmlError> Errors { get; }
-    public virtual HtmlReaderState State { get; protected set; }
+    public virtual HtmlReaderState? State { get; protected set; }
     public virtual int FirstEncodingErrorOffset { get; protected set; }
-    public HtmlParserState ParserState { get; protected set; }
+    public virtual HtmlParserState ParserState { get; protected set; }
     public StringBuilder Value { get; private set; }
 
     protected Queue<HtmlReaderState> ParserStatesQueue { get; } = new Queue<HtmlReaderState>();
@@ -69,7 +69,7 @@ public class HtmlReader
 
     protected virtual void OnParsing(object sender, HtmlReaderParseEventArgs e) => Parsing?.Invoke(sender, e);
 
-    private void SetCurrentElement(string tag)
+    private void SetCurrentElement(string? tag)
     {
         if (!string.Equals(_currentElement, tag, StringComparison.Ordinal))
         {
@@ -80,14 +80,16 @@ public class HtmlReader
 
     private bool OnParsing(ref char c, ref char prev, ref char peek, out bool cont)
     {
-        var e = new HtmlReaderParseEventArgs(Value, _rawValue);
-        e.Eof = _eof;
-        e.CurrentElement = _currentElement;
-        e.CurrentCharacter = c;
-        e.PreviousCharacter = prev;
-        e.PeekCharacter = peek;
-        e.EatNextCharacters = _eatNext;
-        e.State = ParserState;
+        var e = new HtmlReaderParseEventArgs(Value, _rawValue)
+        {
+            Eof = _eof,
+            CurrentElement = _currentElement,
+            CurrentCharacter = c,
+            PreviousCharacter = prev,
+            PeekCharacter = peek,
+            EatNextCharacters = _eatNext,
+            State = ParserState
+        };
         OnParsing(this, e);
         cont = e.Continue;
         _eof = e.Eof;
@@ -105,11 +107,12 @@ public class HtmlReader
 
     public virtual bool IsAnyQuote(int character) => character == '"' || character == '\'';
     public virtual bool IsWhiteSpace(int character) => character == 10 || character == 13 || character == 32 || character == 9;
-    public virtual HtmlReaderState CreateState(HtmlParserState rawParserState, string rawValue) => new(this, rawParserState, rawValue);
-    protected virtual void PushCurrentState(HtmlParserState fragmentType, string value) => PushState(CreateState(fragmentType, value));
+    public virtual HtmlReaderState CreateState(HtmlParserState rawParserState, string? rawValue) => new(this, rawParserState, rawValue);
+    protected virtual void PushCurrentState(HtmlParserState fragmentType, string? value) => PushState(CreateState(fragmentType, value));
 
     protected virtual void PushState(HtmlReaderState state)
     {
+        ArgumentNullException.ThrowIfNull(state);
         if (state.ParserState == HtmlParserState.AttName)
         {
             _attIsScriptType = state.Value != null && _currentElement != null && state.Value.EqualsIgnoreCase("type") && _currentElement.EqualsIgnoreCase("script");
@@ -121,8 +124,8 @@ public class HtmlReader
         ParserStatesQueue.Enqueue(state);
     }
 
-    protected virtual void PushCurrentState() => PushState(CreateState(ParserState, Value.ToString()));
-    protected virtual void AddError(HtmlErrorType type) => Errors.Add(new HtmlError(State.Line, State.Column, State.Offset, type));
+    protected virtual void PushCurrentState() => PushState(CreateState(ParserState, Value?.ToString()));
+    protected virtual void AddError(HtmlErrorType type) => Errors.Add(new HtmlError(State?.Line ?? 0, State?.Column ?? 0, State?.Offset ?? 0, type));
 
     public virtual bool Read()
     {
@@ -266,12 +269,12 @@ public class HtmlReader
                     break;
 
                 case HtmlParserState.RawText:
-                    if (((c == '>') || (IsWhiteSpace(c))) && (Value.Length >= (_currentElement.Length + 2)) &&
-                        (Value[Value.Length - _currentElement.Length - 2] == '<') &&
-                        (Value[Value.Length - _currentElement.Length - 1] == '/') &&
-                        (Value.ToString(Value.Length - _currentElement.Length, _currentElement.Length).EqualsIgnoreCase(_currentElement)))
+                    if (((c == '>') || (IsWhiteSpace(c))) && (Value.Length >= (_currentElement?.Length + 2)) &&
+                        (Value[Value.Length - (_currentElement?.Length ?? 0) - 2] == '<') &&
+                        (Value[Value.Length - (_currentElement?.Length ?? 0) - 1] == '/') &&
+                        (Value.ToString(Value.Length - (_currentElement?.Length ?? 0), _currentElement?.Length ?? 0).EqualsIgnoreCase(_currentElement)))
                     {
-                        var rawText = Value.ToString(0, Value.Length - _currentElement.Length - 2);
+                        var rawText = Value.ToString(0, Value.Length - (_currentElement?.Length ?? 0) - 2);
                         PushCurrentState(HtmlParserState.Text, rawText);
                         if (c == '>')
                         {

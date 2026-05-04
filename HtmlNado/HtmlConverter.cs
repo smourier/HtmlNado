@@ -112,8 +112,11 @@ public partial class HtmlConverter
         AppendPlainText(node, writer);
     }
 
-    private static bool IsHeadingTag(string name)
+    private static bool IsHeadingTag(string? name)
     {
+        if (name == null)
+            return false;
+
         if (name.Length != 2)
             return false;
 
@@ -123,7 +126,7 @@ public partial class HtmlConverter
         return char.IsDigit(name[1]);
     }
 
-    private static bool IsTitleTag(string name) => name.EqualsIgnoreCase("title");
+    private static bool IsTitleTag(string? name) => name.EqualsIgnoreCase("title");
 
     private string AppendPlainText(HtmlNode node)
     {
@@ -270,7 +273,7 @@ public partial class HtmlConverter
                 return;
             }
 
-            if (_paraTextTags.Contains(node.Name))
+            if (node.Name != null && _paraTextTags.Contains(node.Name))
             {
                 WriterWriteLine(writer);
                 AppendPlainText(node, writer);
@@ -284,7 +287,7 @@ public partial class HtmlConverter
                 WriterWriteLine(writer);
             }
 
-            if (!_noTextTags.Contains(node.Name))
+            if (node.Name != null && !_noTextTags.Contains(node.Name))
             {
                 AppendPlainText(node, writer);
             }
@@ -337,7 +340,7 @@ public partial class HtmlConverter
         if (child.NodeType != HtmlNodeType.Document && child.NodeType != HtmlNodeType.Element)
             return;
 
-        var name = child.Name.ToLowerInvariant();
+        var name = child.Name?.ToLowerInvariant();
         switch (name)
         {
             case "img":
@@ -422,7 +425,7 @@ public partial class HtmlConverter
                 break;
 
             default:
-                if (!_noTextTags.Contains(child.Name))
+                if (child.Name != null && !_noTextTags.Contains(child.Name))
                 {
                     AppendRichText(child, writer);
                 }

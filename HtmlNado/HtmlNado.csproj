@@ -7,6 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Using Include="HtmlNado.Utilities" />
 		<Using Include="System" />
 		<Using Include="System.Collections" />
 		<Using Include="System.Collections.Concurrent" />

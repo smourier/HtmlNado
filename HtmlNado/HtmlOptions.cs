@@ -4,9 +4,9 @@ public class HtmlOptions
 {
     private readonly Dictionary<string, HtmlElementReadOptions> _readOptions = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, HtmlElementWriteOptions> _writeOptions = new(StringComparer.OrdinalIgnoreCase);
-    private readonly HashSet<string> _emptyNamespacesForXPath = new(StringComparer.Ordinal);
-    private readonly HashSet<string> _emptyNamespaces = new(StringComparer.Ordinal);
-    private readonly HashSet<string> _parsedScriptTypes = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _emptyNamespacesForXPath = [];
+    private readonly HashSet<string> _emptyNamespaces = [];
+    private readonly HashSet<string> _parsedScriptTypes = [];
 
     public HtmlOptions()
     {
@@ -135,49 +135,49 @@ public class HtmlOptions
         _emptyNamespacesForXPath.Add(HtmlNode.XhtmlNamespaceURI);
     }
 
-    public virtual HtmlElementWriteOptions GetElementWriteOptions(string name)
-    {
-        ArgumentNullException.ThrowIfNull(name);
+    public IReadOnlySet<string> ParsedScriptTypes => _parsedScriptTypes;
+    public IReadOnlySet<string> EmptyNamespaces => _emptyNamespaces;
+    public IReadOnlySet<string> EmptyNamespacesForXPath => _emptyNamespacesForXPath;
+    public virtual bool ReaderThrowsOnEncodingMismatch { get; set; }
+    public virtual bool ReaderRestartsOnEncodingDetected { get; set; }
+    public virtual bool ReaderThrowsOnUnknownDetectedEncoding { get; set; }
+    public virtual bool DontBuildIdDictionary { get; set; }
 
-        _writeOptions.TryGetValue(name, out HtmlElementWriteOptions options);
+    public virtual HtmlElementWriteOptions GetElementWriteOptions(string? name)
+    {
+        if (name == null)
+            return HtmlElementWriteOptions.None;
+
+        _writeOptions.TryGetValue(name, out var options);
         return options;
     }
 
     public virtual void SetElementWriteOptions(string name, HtmlElementWriteOptions options)
     {
         ArgumentNullException.ThrowIfNull(name);
-
         _writeOptions[name] = options;
     }
 
-    internal bool ParseScriptType(string type)
+    public virtual HtmlElementReadOptions GetElementReadOptions(string? name)
     {
-        if (type == null)
-            return false;
+        if (name == null)
+            return HtmlElementReadOptions.None;
 
-        return ParsedScriptTypes.Contains(type);
-    }
-
-    public virtual HtmlElementReadOptions GetElementReadOptions(string name)
-    {
-        ArgumentNullException.ThrowIfNull(name);
-
-        _readOptions.TryGetValue(name, out HtmlElementReadOptions options);
+        _readOptions.TryGetValue(name, out var options);
         return options;
     }
 
     public virtual void SetElementReadOptions(string name, HtmlElementReadOptions options)
     {
         ArgumentNullException.ThrowIfNull(name);
-
         _readOptions[name] = options;
     }
 
-    public virtual ISet<string> ParsedScriptTypes => _parsedScriptTypes;
-    public virtual ISet<string> EmptyNamespaces => _emptyNamespaces;
-    public virtual ISet<string> EmptyNamespacesForXPath => _emptyNamespacesForXPath;
-    public virtual bool ReaderThrowsOnEncodingMismatch { get; set; }
-    public virtual bool ReaderRestartsOnEncodingDetected { get; set; }
-    public virtual bool ReaderThrowsOnUnknownDetectedEncoding { get; set; }
-    public virtual bool DontBuildIdDictionary { get; set; }
+    internal bool ParseScriptType(string? type)
+    {
+        if (type == null)
+            return false;
+
+        return ParsedScriptTypes.Contains(type);
+    }
 }
